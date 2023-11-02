@@ -1,16 +1,12 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 
-const personalityQuestions = sequelize.define("personalityQuestions", {
+const personalityQnRecModel = sequelize.define("personalityQnRecModel", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  questionName: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
 });
 
-module.exports = personalityQuestions;
+module.exports = personalityQnRecModel;

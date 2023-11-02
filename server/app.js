@@ -17,13 +17,26 @@ app.use(bodyParser.json());
 const User = require("./models/user/userModel");
 const tinyHabits = require("./models/user/tinyHabitsModel");
 const tinyHabitsCompletion = require("./models/user/tinyHabitCompletionModel");
+const personalityQuestions = require("./models/user/personalityQuestionModel");
+const personalityQnRecModel = require("./models/user/personalityQnRecModel");
+const personalityOutcomes = require("./models/user/personalityOutcomeModel");
 
-// relationships
+// RELATIONSHIPS
+
+//user and tiny habits
 User.hasMany(tinyHabitsCompletion);
 tinyHabitsCompletion.belongsTo(User);
 
 tinyHabits.hasMany(tinyHabitsCompletion);
 tinyHabitsCompletion.belongsTo(tinyHabits);
+
+//user and personality
+
+User.hasMany(personalityOutcomes);
+personalityOutcomes.belongsTo(User);
+
+personalityQuestions.hasMany(personalityOutcomes);
+personalityOutcomes.belongsTo(personalityQuestions);
 
 sequelize
   .sync()
