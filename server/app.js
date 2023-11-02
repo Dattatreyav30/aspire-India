@@ -20,6 +20,7 @@ const tinyHabitsCompletion = require("./models/user/tinyHabitCompletionModel");
 const personalityQuestions = require("./models/user/personalityQuestionModel");
 const personalityQnRecModel = require("./models/user/personalityQnRecModel");
 const personalityOutcomes = require("./models/user/personalityOutcomeModel");
+const personalityResults = require("./models/user/personalityResultsModel");
 
 // RELATIONSHIPS
 
@@ -32,11 +33,19 @@ tinyHabitsCompletion.belongsTo(tinyHabits);
 
 //user and personality
 
-User.hasMany(personalityOutcomes);
-personalityOutcomes.belongsTo(User);
+User.hasMany(personalityQnRecModel);
+personalityQnRecModel.belongsTo(User);
 
-personalityQuestions.hasMany(personalityOutcomes);
-personalityOutcomes.belongsTo(personalityQuestions);
+personalityQuestions.hasMany(personalityQnRecModel);
+personalityQnRecModel.belongsTo(personalityQuestions);
+
+
+//user and personality results
+User.hasMany(personalityResults)
+personalityResults.belongsTo(User)
+
+personalityOutcomes.hasMany(personalityResults);
+personalityResults.belongsTo(personalityOutcomes);
 
 sequelize
   .sync()
