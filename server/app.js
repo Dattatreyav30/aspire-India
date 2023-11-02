@@ -4,8 +4,6 @@ const bodyParser = require("body-parser");
 
 const cors = require("cors");
 
-const User = require("./models/user/userModel");
-
 const app = express();
 
 const sequelize = require("./util/database");
@@ -15,7 +13,17 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(User);
+//models
+const User = require("./models/user/userModel");
+const tinyHabits = require("./models/user/tinyHabitsModel");
+const tinyHabitsCompletion = require("./models/user/tinyHabitCompletionModel");
+
+// relationships
+User.hasMany(tinyHabitsCompletion);
+tinyHabitsCompletion.belongsTo(User);
+
+tinyHabits.hasMany(tinyHabitsCompletion);
+tinyHabitsCompletion.belongsTo(tinyHabits);
 
 sequelize
   .sync()
