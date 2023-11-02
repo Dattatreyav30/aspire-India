@@ -5,6 +5,7 @@ const personalityQuestions = require("../models/user/personalityQuestionModel");
 const personalityQnRecModel = require("../models/user/personalityQnRecModel");
 const personalityOutcomes = require("../models/user/personalityOutcomeModel");
 const personalityResults = require("../models/user/personalityResultsModel");
+const personalityOptions = require("../models/user/personalityQnOptions")
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -22,6 +23,10 @@ const relationships = () => {
   // here linking with record model , so that which question is answered by user
   personalityQuestions.hasMany(personalityQnRecModel);
   personalityQnRecModel.belongsTo(personalityQuestions);
+  
+  // one personality can have multiple options
+  personalityQuestions.hasMany(personalityOptions);
+  personalityOptions.belongsTo(personalityQuestions);
 
   //ading userid and personalityOutcomesId. here , we can relate personality outcomes with id
   User.hasMany(personalityResults);
