@@ -1,11 +1,11 @@
-const User = require("../models/user/userModel");
-const tinyHabits = require("../models/user/tinyHabitsModel");
-const tinyHabitsCompletion = require("../models/user/tinyHabitCompletionModel");
-const personalityQuestions = require("../models/user/personalityQuestionModel");
-const personalityQnRecModel = require("../models/user/personalityQnRecModel");
-const personalityOutcomes = require("../models/user/personalityOutcomeModel");
-const personalityResults = require("../models/user/personalityResultsModel");
-const personalityOptions = require("../models/user/personalityQnOptions")
+const User = require("../models/user/UserModel");
+const tinyHabits = require("../models/user/TinyHabitsModel");
+const tinyHabitsCompletion = require("../models/user/TinyHabitCompletionModel");
+const personalityQuestions = require("../models/user/PersonalityQuestionModel");
+const personalityQnRecModel = require("../models/user/PersonalityQnRecModel");
+const personalityOutcomes = require("../models/user/PersonalityOutcomeModel");
+const personalityResults = require("../models/user/PersonalityResultsModel");
+const personalityOptions = require("../models/user/PersonalityQnOptions");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -23,7 +23,7 @@ const relationships = () => {
   // here linking with record model , so that which question is answered by user
   personalityQuestions.hasMany(personalityQnRecModel);
   personalityQnRecModel.belongsTo(personalityQuestions);
-  
+
   // one personality can have multiple options
   personalityQuestions.hasMany(personalityOptions);
   personalityOptions.belongsTo(personalityQuestions);
