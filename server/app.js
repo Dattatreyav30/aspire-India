@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 
 const cors = require("cors");
 
-const User = require("./models/userModel");
+const User = require("./models/user/userModel");
 
 const app = express();
 
