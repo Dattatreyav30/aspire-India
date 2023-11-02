@@ -11,6 +11,9 @@ const actions = require("../models/user/ActionsModel");
 const ProgramAssigned = require("../models/user/ProgramAssignedModel");
 const Team = require("../models/user/TeamModel");
 const ActionCompletion = require("../models/user/ActionCompletion");
+const CommunityPosts = require("../models/user/CommunityPostsModel");
+const CommunityPostsLikes = require("../models/user/CommunityPostsLikesModel");
+const CommunityPostsComnts = require("../models/user/CommunityPostsComntsModel");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -61,11 +64,25 @@ const relationships = () => {
   User.hasMany(ActionCompletion);
   ActionCompletion.belongsTo(User);
 
+  //relating actionId so that we can identity which habit is completed
   actions.hasMany(ActionCompletion);
   ActionCompletion.belongsTo(actions);
 
+  //adding programId so that we can identify which action is part of which program
   programs.hasMany(ActionCompletion);
-  ActionCompletion.belongsTo(programs)
+  ActionCompletion.belongsTo(programs);
+
+  CommunityPosts.hasMany(CommunityPostsLikes);
+  CommunityPostsLikes.belongsTo(CommunityPosts);
+
+  CommunityPosts.hasMany(CommunityPostsComnts);
+  CommunityPostsComnts.belongsTo(CommunityPosts);
+
+  User.hasMany(CommunityPostsLikes);
+  CommunityPostsLikes.belongsTo(User);
+
+  User.hasMany(CommunityPostsComnts);
+  CommunityPostsComnts.belongsTo(User);
 };
 
 module.exports = relationships;
