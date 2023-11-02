@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 // RELATIONSHIPS
 relationships();
 sequelize
-  .sync()   
+  .sync()
   .then(() => {
     console.log("Connection has been established successfully.");
   })

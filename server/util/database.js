@@ -6,3 +6,4 @@ const sequelize = new Sequelize("aspireIndia", "root", "Mykoshi@3", {
 });    
 
 module.exports = sequelize;
+  

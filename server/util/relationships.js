@@ -5,7 +5,11 @@ const personalityQuestions = require("../models/user/PersonalityQuestionModel");
 const personalityQnRecModel = require("../models/user/PersonalityQnRecModel");
 const personalityOutcomes = require("../models/user/PersonalityOutcomeModel");
 const personalityResults = require("../models/user/PersonalityResultsModel");
-const personalityOptions = require("../models/user/PersonalityQnOptions");
+const personalityOptions = require("../models/user/PersonalityQnOptionsModel");
+const programs = require("../models/user/Programs");
+const actions = require("../models/user/ActionsModel");
+const ProgramAssigned = require("../models/user/ProgramAssignedModel");
+const Team = require("../models/user/TeamModel");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -34,6 +38,22 @@ const relationships = () => {
 
   personalityOutcomes.hasMany(personalityResults);
   personalityResults.belongsTo(personalityOutcomes);
+
+  //one team can have many users
+
+  User.hasMany(Team);
+  Team.belongsTo(User);
+
+  //one program can have many actions
+  programs.hasMany(actions);
+  actions.belongsTo(programs);
+
+  //assigning program go user
+  programs.hasMany(ProgramAssigned);
+  ProgramAssigned.belongsTo(programs);
+
+  Team.hasMany(ProgramAssigned);
+  ProgramAssigned.belongsTo(Team);
 };
 
 module.exports = relationships;

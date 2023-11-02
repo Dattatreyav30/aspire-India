@@ -9,4 +9,4 @@ const personalityOptions = sequelize.define("personalityOptions", {
   },
 });
 
-module.exports = personalityOptions
+module.exports = personalityOptions;
