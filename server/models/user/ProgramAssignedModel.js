@@ -7,6 +7,10 @@ const ProgramAssigned = sequelize.define("ProgramAssigned", {
     primaryKey: true,
     autoIncrement: true,
   },
+  isComplete : {
+    type : Sequelize.BOOLEAN,
+    defaultValue : false
+  }
 });
 
 module.exports = ProgramAssigned;

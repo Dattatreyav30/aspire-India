@@ -10,6 +10,7 @@ const programs = require("../models/user/Programs");
 const actions = require("../models/user/ActionsModel");
 const ProgramAssigned = require("../models/user/ProgramAssignedModel");
 const Team = require("../models/user/TeamModel");
+const ActionCompletion = require("../models/user/ActionCompletion");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -52,8 +53,19 @@ const relationships = () => {
   programs.hasMany(ProgramAssigned);
   ProgramAssigned.belongsTo(programs);
 
+  //which team is part of program
   Team.hasMany(ProgramAssigned);
   ProgramAssigned.belongsTo(Team);
+
+  //completing action by user
+  User.hasMany(ActionCompletion);
+  ActionCompletion.belongsTo(User);
+
+  actions.hasMany(ActionCompletion);
+  ActionCompletion.belongsTo(actions);
+
+  programs.hasMany(ActionCompletion);
+  ActionCompletion.belongsTo(programs)
 };
 
 module.exports = relationships;
