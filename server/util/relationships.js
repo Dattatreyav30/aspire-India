@@ -1,19 +1,30 @@
 const User = require("../models/user/UserModel");
+
 const tinyHabits = require("../models/user/TinyHabitsModel");
 const tinyHabitsCompletion = require("../models/user/TinyHabitCompletionModel");
+
 const personalityQuestions = require("../models/user/PersonalityQuestionModel");
 const personalityQnRecModel = require("../models/user/PersonalityQnRecModel");
 const personalityOutcomes = require("../models/user/PersonalityOutcomeModel");
 const personalityResults = require("../models/user/PersonalityResultsModel");
 const personalityOptions = require("../models/user/PersonalityQnOptionsModel");
+
 const programs = require("../models/user/Programs");
 const actions = require("../models/user/ActionsModel");
 const ProgramAssigned = require("../models/user/ProgramAssignedModel");
 const Team = require("../models/user/TeamModel");
 const ActionCompletion = require("../models/user/ActionCompletion");
+
 const CommunityPosts = require("../models/user/CommunityPostsModel");
 const CommunityPostsLikes = require("../models/user/CommunityPostsLikesModel");
 const CommunityPostsComnts = require("../models/user/CommunityPostsComntsModel");
+
+const Department = require("../models/user/DepartmentModel");
+const Skills = require("../models/user/SkillsModel");
+const Designation = require("../models/user/DesignationModel");
+const ProgramDesignation = require("../models/user/ProgramDesignationModel");
+const ProgramSkills = require("../models/user/ProgramSkills");
+const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -87,6 +98,24 @@ const relationships = () => {
   //linking each user with comment that they have given
   User.hasMany(CommunityPostsComnts);
   CommunityPostsComnts.belongsTo(User);
+
+  programs.hasMany(ProgramDesignation);
+  ProgramDesignation.belongsTo(programs);
+
+  programs.hasMany(ProgramSkills);
+  ProgramSkills.belongsTo(programs);
+
+  programs.hasMany(ProgramDepartment);
+  ProgramDepartment.belongsTo(programs);
+
+  Department.hasMany(ProgramDepartment);
+  ProgramDepartment.belongsTo(Department);
+
+  Skills.hasMany(ProgramSkills);
+  ProgramSkills.belongsTo(Skills);
+
+  Designation.hasMany(ProgramDesignation);
+  ProgramDesignation.belongsTo(Designation);
 };
 
 module.exports = relationships;

@@ -11,3 +11,5 @@ const Skills = sequelize.define('skills',{
         type : Sequelize.STRING
       }
 })
+
+module.exports = Skills
