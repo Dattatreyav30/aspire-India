@@ -26,6 +26,10 @@ const ProgramDesignation = require("../models/user/ProgramDesignationModel");
 const ProgramSkills = require("../models/user/ProgramSkills");
 const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
 
+const UserTeam = require("../models/user/userTeamModel");
+const PrecuratedMessages = require("../Models/user/PrecuratedMessagesModel");
+const Messages = require("../models/user/MessagesModel");
+
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
   User.hasMany(tinyHabitsCompletion);
@@ -116,6 +120,18 @@ const relationships = () => {
 
   Designation.hasMany(ProgramDesignation);
   ProgramDesignation.belongsTo(Designation);
+
+  User.belongsToMany(Team, { through: UserTeam });
+  Team.belongsToMany(User, { through: UserTeam });
+
+  User.hasMany(Messages);
+  Messages.belongsTo(User);
+
+  Team.hasMany(Messages);
+  Messages.belongsTo(Team);
+
+  PrecuratedMessages.hasMany(Messages);
+  Messages.belongsTo(PrecuratedMessages);
 };
 
 module.exports = relationships;
