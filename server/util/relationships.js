@@ -28,7 +28,7 @@ const relationships = () => {
   User.hasMany(personalityQnRecModel);
   personalityQnRecModel.belongsTo(User);
 
-  // here linking with record model , so that which question is answered by user
+  // here linking with record model , so that can identify which question is answered by user
   personalityQuestions.hasMany(personalityQnRecModel);
   personalityQnRecModel.belongsTo(personalityQuestions);
 
@@ -72,15 +72,19 @@ const relationships = () => {
   programs.hasMany(ActionCompletion);
   ActionCompletion.belongsTo(programs);
 
+  //for each like , linking it to the post id
   CommunityPosts.hasMany(CommunityPostsLikes);
   CommunityPostsLikes.belongsTo(CommunityPosts);
 
+  //for each comment, linking it to the post id
   CommunityPosts.hasMany(CommunityPostsComnts);
   CommunityPostsComnts.belongsTo(CommunityPosts);
 
+  //linking each user with likes that they have given
   User.hasMany(CommunityPostsLikes);
   CommunityPostsLikes.belongsTo(User);
 
+  //linking each user with comment that they have given
   User.hasMany(CommunityPostsComnts);
   CommunityPostsComnts.belongsTo(User);
 };
