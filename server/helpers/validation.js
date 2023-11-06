@@ -13,6 +13,14 @@ const userSchema = Joi.object({
   isEmailVerified: Joi.boolean().default(false),
 });
 
+const loginSchema = Joi.object({
+  emailOrMobile: Joi.alternatives().try(
+    Joi.string().required(),
+    Joi.string().length(10).required()
+  ),
+  password: Joi.string().required(),
+});
 module.exports = {
   userSchema,
+  loginSchema
 };

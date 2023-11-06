@@ -6,9 +6,14 @@ const { Op, or } = require("sequelize");
 
 //joi user schemas
 const userSchema = require("../../helpers/validation").userSchema;
+const loginSchema = require("../../helpers/validation").loginSchema;
 
 //libraries
 const bcrypt = require("bcrypt");
+
+//middlewares
+const generateAccessToken =
+  require("../../middleware/userAuth").generateAccessToken;
 
 exports.userSignup = async (req, res) => {
   try {
@@ -60,19 +65,39 @@ exports.userSignup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { emailOrMobile, password } = req.body;
-    // const decryptedPassword = await bcrypt.compare()
+    
+    // Validate the request body using Joi
+    const { error } = loginSchema.validate(req.body);
+
+    if (error) {
+      return res
+        .status(400)
+        .json({ error: "Validation error", details: error.details });
+    }
+
+    //finding user with provided email or phone number
     const user = await User.findOne({
       where: {
         [Op.or]: [{ email: emailOrMobile }, { phoneNumber: emailOrMobile }],
       },
     });
+
+    // if no user found there should be wrong with email  or mobile number
     if (!user) {
       return res.status(403).json({ error: "Invalid email or mobile number" });
     }
+
+    //matching pssword from user and password in databse
     const match = await bcrypt.compare(password, user.password);
+
+    // password is incorrect if wrong password is typed
     if (!match) {
       return res.status(401).json({ error: "Invalid password" });
     }
+    return res.status(200).json({
+      message: "user logged in succesfully",
+      token: generateAccessToken(user.id),
+    });
   } catch (err) {
     res
       .status(500)
