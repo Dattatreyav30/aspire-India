@@ -65,7 +65,7 @@ exports.userSignup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { emailOrMobile, password } = req.body;
-    
+
     // Validate the request body using Joi
     const { error } = loginSchema.validate(req.body);
 
@@ -87,7 +87,7 @@ exports.login = async (req, res) => {
       return res.status(403).json({ error: "Invalid email or mobile number" });
     }
 
-    //matching pssword from user and password in databse
+    //matching pssword from user and password in database
     const match = await bcrypt.compare(password, user.password);
 
     // password is incorrect if wrong password is typed
