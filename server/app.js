@@ -1,10 +1,8 @@
-const express = require("express");
-
 const bodyParser = require("body-parser");
 
 const cors = require("cors");
 
-const app = express();
+const { app, routeFunction } = require("./util/routes");
 
 const sequelize = require("./util/database");
 const relationships = require("./util/relationships");
@@ -16,6 +14,9 @@ app.use(bodyParser.json());
 
 // RELATIONSHIPS
 relationships();
+
+routeFunction();
+
 sequelize
   .sync()
   .then(() => {
@@ -28,3 +29,5 @@ sequelize
 app.listen(5000, () => {
   console.log("server is running on port 5000");
 });
+
+module.exports = app;

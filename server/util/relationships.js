@@ -1,24 +1,31 @@
+//user
 const User = require("../models/user/UserModel");
 
+//tinyhabits
 const tinyHabits = require("../models/user/TinyHabitsModel");
 const tinyHabitsCompletion = require("../models/user/TinyHabitCompletionModel");
 
+//personality
 const personalityQuestions = require("../models/user/PersonalityQuestionModel");
 const personalityQnRecModel = require("../models/user/PersonalityQnRecModel");
 const personalityOutcomes = require("../models/user/PersonalityOutcomeModel");
 const personalityResults = require("../models/user/PersonalityResultsModel");
 const personalityOptions = require("../models/user/PersonalityQnOptionsModel");
 
+//programs
 const programs = require("../models/user/Programs");
 const actions = require("../models/user/ActionsModel");
 const ProgramAssigned = require("../models/user/ProgramAssignedModel");
 const Team = require("../models/user/TeamModel");
 const ActionCompletion = require("../models/user/ActionCompletion");
 
+//community posts
 const CommunityPosts = require("../models/user/CommunityPostsModel");
 const CommunityPostsLikes = require("../models/user/CommunityPostsLikesModel");
 const CommunityPostsComnts = require("../models/user/CommunityPostsComntsModel");
 
+
+//programs department  designation
 const Department = require("../models/user/DepartmentModel");
 const Skills = require("../models/user/SkillsModel");
 const Designation = require("../models/user/DesignationModel");
@@ -26,6 +33,8 @@ const ProgramDesignation = require("../models/user/ProgramDesignationModel");
 const ProgramSkills = require("../models/user/ProgramSkills");
 const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
 
+
+//teamchat
 const UserTeam = require("../models/user/userTeamModel");
 const PrecuratedMessages = require("../Models/user/PrecuratedMessagesModel");
 const Messages = require("../models/user/MessagesModel");
@@ -103,33 +112,43 @@ const relationships = () => {
   User.hasMany(CommunityPostsComnts);
   CommunityPostsComnts.belongsTo(User);
 
+  //one program  can be part of many designations
   programs.hasMany(ProgramDesignation);
   ProgramDesignation.belongsTo(programs);
 
+  //one program  can be part of many skills
   programs.hasMany(ProgramSkills);
   ProgramSkills.belongsTo(programs);
 
+  //one program  can be part of many departments
   programs.hasMany(ProgramDepartment);
   ProgramDepartment.belongsTo(programs);
-
+  
+  //linking department with program to identify which are all the programs are linked with which department
   Department.hasMany(ProgramDepartment);
   ProgramDepartment.belongsTo(Department);
 
+  //linking skills with program to identify which are all the programs are linked with which skills
   Skills.hasMany(ProgramSkills);
   ProgramSkills.belongsTo(Skills);
 
+ //linking designation with program to identify which are all the programs are linked with which designation
   Designation.hasMany(ProgramDesignation);
   ProgramDesignation.belongsTo(Designation);
 
+  //user can be part of many team,
   User.belongsToMany(Team, { through: UserTeam });
   Team.belongsToMany(User, { through: UserTeam });
 
+  //one user can have many messages
   User.hasMany(Messages);
   Messages.belongsTo(User);
 
+  //one team can have many messages
   Team.hasMany(Messages);
   Messages.belongsTo(Team);
 
+  //linking precurated messages to messages table , here we can identify which message is part of precurated messages
   PrecuratedMessages.hasMany(Messages);
   Messages.belongsTo(PrecuratedMessages);
 };

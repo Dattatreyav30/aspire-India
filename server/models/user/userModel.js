@@ -13,21 +13,31 @@ const User = sequelize.define("user", {
   },
   phoneNumber: {
     type: Sequelize.STRING,
+    allowNull: false,
   },
   name: {
     type: Sequelize.STRING,
+    allowNull: false,
   },
   DOB: {
     type: Sequelize.DATE,
+    allowNull: false,
   },
   DOJ: {
     type: Sequelize.DATE,
+    allowNull: false,
   },
   gender: {
     type: Sequelize.STRING,
+    allowNull: false,
+  },
+  password: {
+    type: Sequelize.STRING,
+    allowNull: false,
   },
   totalPoints: {
     type: Sequelize.INTEGER,
+    defaultValue: 0,
   },
   isMobileVerified: {
     type: Sequelize.BOOLEAN,
