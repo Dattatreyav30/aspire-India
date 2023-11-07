@@ -15,9 +15,9 @@ const bcrypt = require("bcrypt");
 const generateAccessToken =
   require("../../middleware/userAuth").generateAccessToken;
 
-  //error handler
-  const errorForJoi = require("../../helpers/error").errorHandlerJoi;
-
+//error handler
+const errorForJoi = require("../../helpers/error").errorHandlerJoi;
+const error500 = require("../../helpers/error").error500;
 
 exports.userSignup = async (req, res) => {
   try {
@@ -25,8 +25,8 @@ exports.userSignup = async (req, res) => {
     const { error } = userSchema.validate(req.body);
 
     //errorHandler for joi
-    if(error){
-      errorForJoi(error,res)
+    if (error) {
+      errorForJoi(error, res);
     }
 
     const { email, phoneNumber, name, DOB, DOJ, gender, password } = req.body;
@@ -54,14 +54,12 @@ exports.userSignup = async (req, res) => {
       gender,
       password: hashedPassword,
     });
-    console.log(userDataCreation.id)
+    console.log(userDataCreation.id);
     res
       .status(201)
       .json({ message: "User creation successful", data: userDataCreation });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Internal server error", details: err.message });
+    error500(err, res);
   }
 };
 
@@ -71,10 +69,10 @@ exports.login = async (req, res) => {
 
     // Validate the request body using Joi
     const { error } = loginSchema.validate(req.body);
-    
+
     //error handling if joi validation fails
     if (error) {
-     errorForJoi(error,res);
+      errorForJoi(error, res);
     }
 
     //finding user with provided email or phone number
@@ -101,8 +99,6 @@ exports.login = async (req, res) => {
       token: generateAccessToken(user.id),
     });
   } catch (err) {
-    res
-      .status(500)
-      .json({ error: "Internal server error", details: err.message });
+    error500(err, res);
   }
 };

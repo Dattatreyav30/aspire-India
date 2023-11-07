@@ -4,8 +4,9 @@ const Designation = require("../../models/user/DesignationModel");
 const Department = require("../../models/user/DepartmentModel");
 const Skills = require("../../models/user/SkillsModel");
 
-//joi error handler
+//error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
+const error500 = require("../../helpers/error").error500;
 
 //joiSchemas
 const departmentSchema = require("../../helpers/validation").departmentSchema;
@@ -35,7 +36,7 @@ exports.postDepartment = async (req, res) => {
       .status(200)
       .json({ message: "Department created successfully", dept: newDept });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    error500(err, res);
   }
 };
 
@@ -61,7 +62,7 @@ exports.postSkills = async (req, res) => {
       .status(200)
       .json({ message: "Skill created successfully", skill: newSkill });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    error500(err, res);
   }
 };
 
@@ -86,24 +87,47 @@ exports.postDesignation = async (req, res) => {
       designation: newDesignation,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    error500(err, res);
   }
 };
 
-//testing, it can be realated to aspire flow
-// exports.postProgramWithActions = async (req, res) => {
-//   try {
-//     const { programs } = req.body.Program;
-//     for (let i = 0; i < programs.length; i++) {
-//       let program = await Program.create({
-//         programName,
-//         description,
-//         totalPoints,
-//         duration,
-//       });
-//       //adding actions to the programs
-//     }
-//   } catch (err) {
-//     res.status(500).json({ err: err.message });
-//   }
-// };
+exports.getDeptSkillsDesgntn = async (req, res) => {
+  try {
+    const allDesignations = await Designation.findAll({
+      attributes: { exclude: ["id"] },
+    });
+
+    const allSkills = await Skills.findAll({
+      attributes: { exclude: ["id"] },
+    });
+
+    const allDepartments = await Department.findAll({
+      attributes: { exclude: ["id"] },
+    });
+
+    res.status(200).json({
+      designations: allDesignations,
+      skills: allSkills,
+      departments: allDepartments,
+    });
+  } catch (err) {
+    error500(err, res);
+  }
+};
+
+exports.postProgramWithActions = async (req, res) => {
+  try {
+    const { programs } = req.body.Program;
+    for (let i = 0; i < programs.length; i++) {
+      let program = await Program.create({
+        programName,
+        description,
+        totalPoints,
+        duration,
+      });
+      //adding actions to the programs
+    }
+  } catch (err) {
+    res.status(500).json({ err: err.message });
+  }
+};

@@ -4,14 +4,16 @@ const upload = multer({ dest: "uploads/" });
 
 const express = require("express");
 
-const Department = require("../../controllers/user/programController");
+const ProgramController = require("../../controllers/user/programController");
 
 const router = express.Router();
 
-router.post("/post-department", upload.none(), Department.postDepartment);
+router.post("/post-department", upload.none(), ProgramController.postDepartment);
 
-router.post("/post-skills", upload.none(), Department.postSkills);
+router.post("/post-skills", upload.none(), ProgramController.postSkills);
 
-router.post("/post-designation", upload.none(), Department.postDesignation);
+router.post("/post-designation", upload.none(), ProgramController.postDesignation);
+
+router.get("/get-depts-skills-dsgntn",upload.none(),ProgramController.getDeptSkillsDesgntn)
 
 module.exports = router;
