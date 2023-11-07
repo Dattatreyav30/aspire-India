@@ -1,5 +1,6 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
+const { UUIDV4 } = require("sequelize"); // Import UUIDV4 from Sequelize
 
 const Department = sequelize.define("department", {
   id: {
@@ -9,6 +10,11 @@ const Department = sequelize.define("department", {
   },
   departmentName: {
     type: Sequelize.STRING,
+  },
+  uniqueId: {
+    type: Sequelize.CHAR(36),
+    defaultValue: UUIDV4,
+    unique: true,
   },
 });
 

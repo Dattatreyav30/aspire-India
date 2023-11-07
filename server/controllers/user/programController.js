@@ -22,7 +22,9 @@ exports.postDepartment = async (req, res) => {
     }
 
     // Check if the department already exists
-    const existingDepartment = await Department.findOne({ departmentName });
+    const existingDepartment = await Department.findOne({
+      where: { departmentName: departmentName },
+    });
 
     if (existingDepartment) {
       return res.status(400).json({ message: "Department already exists" });
@@ -48,7 +50,7 @@ exports.postSkills = async (req, res) => {
     }
 
     // Check if the skill already exists
-    const existingSkill = await Skills.findOne({ skillName });
+    const existingSkill = await Skills.findOne({ where: { skillName } });
 
     if (existingSkill) {
       return res.status(400).json({ message: "Skill already exists" });
@@ -70,10 +72,10 @@ exports.postDesignation = async (req, res) => {
     if (error) {
       errorForJoi(error);
     }
-
     // Check if the designation already exists
-    const existingDesignation = await Designation.findOne({ designationName });
-
+    const existingDesignation = await Designation.findOne({
+      where: { designationName },
+    });
     if (existingDesignation) {
       return res.status(400).json({ message: "Designation already exists" });
     }
