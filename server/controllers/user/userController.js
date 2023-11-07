@@ -16,7 +16,7 @@ const generateAccessToken =
   require("../../middleware/userAuth").generateAccessToken;
 
   //error handler
-  const errorForJoi = require("../../helpers/error");
+  const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 
 
 exports.userSignup = async (req, res) => {

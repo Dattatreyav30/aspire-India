@@ -3,3 +3,7 @@ const errorHandlerJoi = (error,res) => {
     .status(400)
     .json({ error: "Validation error", details: error.details });
 };
+
+module.exports = {
+  errorHandlerJoi
+}

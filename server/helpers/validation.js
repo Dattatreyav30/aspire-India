@@ -24,8 +24,18 @@ const loginSchema = Joi.object({
 const departmentSchema =  Joi.object({
   departmentName : Joi.string()
 })
+
+const skillSchema  = Joi.object({
+  skillName : Joi.string(),
+})
+
+const designationSchema = Joi.object({
+  designationName : Joi.string()
+})
 module.exports = {
   userSchema,
   loginSchema,
-  departmentSchema
+  departmentSchema,
+  skillSchema,
+  designationSchema
 };
