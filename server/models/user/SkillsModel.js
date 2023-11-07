@@ -11,11 +11,6 @@ const Skills = sequelize.define('skills',{
       skillName : {
         type : Sequelize.STRING
       },
-      uniqueId: {
-        type: Sequelize.CHAR(36),
-        defaultValue: UUIDV4,
-        unique: true,
-      },
 })
 
 module.exports = Skills

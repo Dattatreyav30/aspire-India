@@ -11,11 +11,6 @@ const Department = sequelize.define("department", {
   departmentName: {
     type: Sequelize.STRING,
   },
-  uniqueId: {
-    type: Sequelize.CHAR(36),
-    defaultValue: UUIDV4,
-    unique: true,
-  },
 });
 
 module.exports = Department;

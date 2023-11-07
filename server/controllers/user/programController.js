@@ -1,8 +1,12 @@
+//models
 const Program = require("../../models/user/Programs");
 const Actions = require("../../models/user/ActionsModel");
 const Designation = require("../../models/user/DesignationModel");
 const Department = require("../../models/user/DepartmentModel");
 const Skills = require("../../models/user/SkillsModel");
+const programDesignation = require("../../models/user/ProgramDesignationModel");
+const programDepartment = require("../../models/user/ProgramDepartmentModel");
+const programSkills = require("../../models/user/ProgramSkills");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -93,17 +97,11 @@ exports.postDesignation = async (req, res) => {
 
 exports.getDeptSkillsDesgntn = async (req, res) => {
   try {
-    const allDesignations = await Designation.findAll({
-      attributes: { exclude: ["id"] },
-    });
+    const allDesignations = await Designation.findAll();
 
-    const allSkills = await Skills.findAll({
-      attributes: { exclude: ["id"] },
-    });
+    const allSkills = await Skills.findAll();
 
-    const allDepartments = await Department.findAll({
-      attributes: { exclude: ["id"] },
-    });
+    const allDepartments = await Department.findAll();
 
     res.status(200).json({
       designations: allDesignations,
@@ -117,17 +115,53 @@ exports.getDeptSkillsDesgntn = async (req, res) => {
 
 exports.postProgramWithActions = async (req, res) => {
   try {
-    const { programs } = req.body.Program;
-    for (let i = 0; i < programs.length; i++) {
-      let program = await Program.create({
-        programName,
-        description,
-        totalPoints,
-        duration,
+    const {
+      programName,
+      description,
+      totalPoints,
+      actions,
+      departments,
+      skills,
+      designations,
+    } = req.body;
+
+    const createProgram = await Program.create({
+      programName,
+      description,
+      totalPoints,
+    });
+    for (let i = 0; i < actions.length; i++) {
+      await Actions.create({
+        name: actions[i].name,
+        description: actions[i].description,
+        points: actions[i].points,
+        duration: actions[i].duration,
+        programId: createProgram.id,
       });
-      //adding actions to the programs
     }
+
+    for (let i = 0; i < departments.length; i++) {
+      programDepartment.create({
+        departmentId: departments[i],
+        programId: createProgram.id,
+      });
+    }
+
+    for (let i = 0; i < designations.length; i++) {
+      programDesignation.create({
+        designationId: designations[i],
+        programId: createProgram.id,
+      });
+    }
+
+    for (let i = 0; i < skills.length; i++) {
+      programSkills.create({
+        skillId: skills[i],
+        programId: createProgram.id,
+      });
+    }
+    res.status(200).json({ message: "program created succesfull" });
   } catch (err) {
-    res.status(500).json({ err: err.message });
+    error500(err, res);
   }
 };

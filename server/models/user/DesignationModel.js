@@ -11,11 +11,6 @@ const Designation = sequelize.define("designation", {
   designationName: {
     type: Sequelize.STRING,
   },
-  uniqueId: {
-    type: Sequelize.CHAR(36),
-    defaultValue: UUIDV4,
-    unique: true,
-  },
 });
 
 module.exports = Designation;

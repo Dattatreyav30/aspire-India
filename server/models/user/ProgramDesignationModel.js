@@ -5,7 +5,7 @@ const ProgramDesignation = sequelize.define("programDesignation", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
+    autoIncrement: true,   
   },
 });
 

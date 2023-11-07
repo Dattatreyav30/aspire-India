@@ -21,21 +21,41 @@ const loginSchema = Joi.object({
   password: Joi.string().required(),
 });
 
-const departmentSchema =  Joi.object({
-  departmentName : Joi.string()
-})
+const departmentSchema = Joi.object({
+  departmentName: Joi.string(),
+});
 
-const skillSchema  = Joi.object({
-  skillName : Joi.string(),
-})
+const skillSchema = Joi.object({
+  skillName: Joi.string(),
+});
 
 const designationSchema = Joi.object({
-  designationName : Joi.string()
-})
+  designationName: Joi.string(),
+});
+
+const programSchema = Joi.object({
+  programName: Joi.string().required(),
+  description: Joi.string().required(),
+  points: Joi.number().integer().min(0).required(),
+  action: Joi.array().items(Joi.string()).required(),
+  departments: Joi.array().items(Joi.string()).required(),
+  skills: Joi.array().items(Joi.string()).required(),
+  designations: Joi.array().items(Joi.string()).required(),
+});
+
+const actionSchema = Joi.object({
+  name: Joi.string().required(),
+  description: Joi.string().required(),
+  duration: Joi.number().integer().min(1).required(),
+  points: Joi.number().integer().min(0).required(),
+});
+
 module.exports = {
   userSchema,
   loginSchema,
   departmentSchema,
   skillSchema,
-  designationSchema
+  designationSchema,
+  programSchema,
+  actionSchema
 };
