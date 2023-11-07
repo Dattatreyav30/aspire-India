@@ -15,15 +15,18 @@ const bcrypt = require("bcrypt");
 const generateAccessToken =
   require("../../middleware/userAuth").generateAccessToken;
 
+  //error handler
+  const errorForJoi = require("../../helpers/error");
+
+
 exports.userSignup = async (req, res) => {
   try {
     // Validate the request body using Joi
     const { error } = userSchema.validate(req.body);
 
-    if (error) {
-      return res
-        .status(400)
-        .json({ error: "Validation error", details: error.details });
+    //errorHandler for joi
+    if(error){
+      errorForJoi(error,res)
     }
 
     const { email, phoneNumber, name, DOB, DOJ, gender, password } = req.body;
@@ -51,7 +54,7 @@ exports.userSignup = async (req, res) => {
       gender,
       password: hashedPassword,
     });
-
+    console.log(userDataCreation.id)
     res
       .status(201)
       .json({ message: "User creation successful", data: userDataCreation });
@@ -68,11 +71,10 @@ exports.login = async (req, res) => {
 
     // Validate the request body using Joi
     const { error } = loginSchema.validate(req.body);
-
+    
+    //error handling if joi validation fails
     if (error) {
-      return res
-        .status(400)
-        .json({ error: "Validation error", details: error.details });
+     errorForJoi(error,res);
     }
 
     //finding user with provided email or phone number

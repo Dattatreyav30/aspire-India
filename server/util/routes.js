@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express(); 
+const app = express();
 
 const userRoute = require("../routes/User/userRoute");
 
@@ -11,4 +11,3 @@ module.exports = {
   app,
   routeFunction,
 };
-

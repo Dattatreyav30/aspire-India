@@ -3,7 +3,7 @@ const Joi = require("joi");
 const userSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
-  phoneNumber: Joi.string().required(),
+  phoneNumber: Joi.string().min(10).required(),
   name: Joi.string().required(),
   DOB: Joi.date().required(),
   DOJ: Joi.date().required(),
@@ -20,7 +20,12 @@ const loginSchema = Joi.object({
   ),
   password: Joi.string().required(),
 });
+
+const departmentSchema =  Joi.object({
+  departmentName : Joi.string()
+})
 module.exports = {
   userSchema,
-  loginSchema
+  loginSchema,
+  departmentSchema
 };
