@@ -60,6 +60,10 @@ const postTinyHabitsSchema = Joi.object({
   habit_name: Joi.string().min(3).max(255).required(),
 });
 
+const tinyHabitCompletionSchema = Joi.object({
+  tinyHabitId: Joi.number().integer().min(1).required(),
+});
+
 
 
 module.exports = {
@@ -71,5 +75,6 @@ module.exports = {
   programSchema,
   actionSchema,
   postTeamSchema,
-  postTinyHabitsSchema
+  postTinyHabitsSchema,
+  tinyHabitCompletionSchema
 };
