@@ -29,5 +29,6 @@ router.get(
 );
 
 router.post("/post-program", ProgramController.postProgramWithActions);
+router.post("/post-team", ProgramController.postTeam);
 
 module.exports = router;

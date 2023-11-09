@@ -4,9 +4,10 @@ const Actions = require("../../models/user/ActionsModel");
 const Designation = require("../../models/user/DesignationModel");
 const Department = require("../../models/user/DepartmentModel");
 const Skills = require("../../models/user/SkillsModel");
-const programDesignation = require("../../models/user/ProgramDesignationModel");
-const programDepartment = require("../../models/user/ProgramDepartmentModel");
-const programSkills = require("../../models/user/ProgramSkills");
+const ProgramDesignation = require("../../models/user/ProgramDesignationModel");
+const ProgramDepartment = require("../../models/user/ProgramDepartmentModel");
+const ProgramSkills = require("../../models/user/ProgramSkills");
+const Teams = require("../../models/user/TeamModel");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -125,42 +126,71 @@ exports.postProgramWithActions = async (req, res) => {
       designations,
     } = req.body;
 
+    // Create the program
     const createProgram = await Program.create({
       programName,
       description,
       totalPoints,
     });
-    for (let i = 0; i < actions.length; i++) {
+    console.log(createProgram.id);
+
+    // Filter and insert departments
+    const validDepartments = await Department.findAll({
+      where: { id: departments },
+    });
+    for (const department of validDepartments) {
+      await ProgramDepartment.create({
+        departmentId: department.id,
+        programId: createProgram.id,
+      });
+    }
+
+    // Filter and insert designations
+    const validDesignations = await Designation.findAll({
+      where: { id: designations },
+    });
+    for (const designation of validDesignations) {
+      await ProgramDesignation.create({
+        designationId: designation.id,
+        programId: createProgram.id,
+      });
+    }
+
+    // Filter and insert skills
+    const validSkills = await Skills.findAll({ where: { id: skills } });
+    for (const skill of validSkills) {
+      await ProgramSkills.create({
+        skillId: skill.id,
+        programId: createProgram.id,
+      });
+    }
+
+    // Insert actions
+    for (const action of actions) {
       await Actions.create({
-        name: actions[i].name,
-        description: actions[i].description,
-        points: actions[i].points,
-        duration: actions[i].duration,
+        name: action.name,
+        description: action.description,
+        points: action.points,
+        duration: action.duration,
         programId: createProgram.id,
       });
     }
 
-    for (let i = 0; i < departments.length; i++) {
-      programDepartment.create({
-        departmentId: departments[i],
-        programId: createProgram.id,
-      });
-    }
+    res.status(200).json({ message: "program created successfully" });
+  } catch (err) {
+    console.error(err);
+    error500(err, res);
+  }
+};
 
-    for (let i = 0; i < designations.length; i++) {
-      programDesignation.create({
-        designationId: designations[i],
-        programId: createProgram.id,
-      });
+exports.postTeam = async (req, res) => {
+  try {
+    const { teamName, userIds } = req.body;
+    // Add users to the team
+    for (let i = 0; i < userIds.length; i++) {
+      await Teams.create({ teamName, userId: userIds[i] });
     }
-
-    for (let i = 0; i < skills.length; i++) {
-      programSkills.create({
-        skillId: skills[i],
-        programId: createProgram.id,
-      });
-    }
-    res.status(200).json({ message: "program created succesfull" });
+    res.status(200).json({ message: "Team created successfully" });
   } catch (err) {
     error500(err, res);
   }
