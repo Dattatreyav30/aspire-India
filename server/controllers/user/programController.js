@@ -17,6 +17,7 @@ const error500 = require("../../helpers/error").error500;
 const departmentSchema = require("../../helpers/validation").departmentSchema;
 const skillSchema = require("../../helpers/validation").skillSchema;
 const designationSchema = require("../../helpers/validation").designationSchema;
+const postTeamSchema = require("../../helpers/validation").postTeamSchema;
 
 //adding up the department
 exports.postDepartment = async (req, res) => {
@@ -186,6 +187,12 @@ exports.postProgramWithActions = async (req, res) => {
 exports.postTeam = async (req, res) => {
   try {
     const { teamName, userIds } = req.body;
+    //joi validation
+    const { error } = postTeamSchema.validate(req.body);
+    
+    if (error) {
+      errorForJoi(error, res);
+    }
     // Add users to the team
     for (let i = 0; i < userIds.length; i++) {
       await Teams.create({ teamName, userId: userIds[i] });

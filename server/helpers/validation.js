@@ -50,6 +50,12 @@ const actionSchema = Joi.object({
   points: Joi.number().integer().min(0).required(),
 });
 
+const postTeamSchema = Joi.object({
+  teamName: Joi.string().min(3).max(255).required(),
+  userIds: Joi.array().items(Joi.number().integer()).min(1).required(),
+});
+
+
 module.exports = {
   userSchema,
   loginSchema,
@@ -57,5 +63,6 @@ module.exports = {
   skillSchema,
   designationSchema,
   programSchema,
-  actionSchema
+  actionSchema,
+  postTeamSchema
 };
