@@ -56,6 +56,12 @@ const postTeamSchema = Joi.object({
 });
 
 
+const postTinyHabitsSchema = Joi.object({
+  habit_name: Joi.string().min(3).max(255).required(),
+});
+
+
+
 module.exports = {
   userSchema,
   loginSchema,
@@ -64,5 +70,6 @@ module.exports = {
   designationSchema,
   programSchema,
   actionSchema,
-  postTeamSchema
+  postTeamSchema,
+  postTinyHabitsSchema
 };
