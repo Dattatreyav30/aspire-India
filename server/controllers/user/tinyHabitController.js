@@ -37,3 +37,12 @@ exports.postTinyHabits = async (req, res) => {
       error500(err, res);
     }
   };
+
+  exports.getTinyHabits = async(req,res)=>{
+    try{
+        const habits = await TinyHabits.findAll();
+        res.status(200).send(habits)
+    }catch(err){
+        error500(err,res)
+    }
+  }
