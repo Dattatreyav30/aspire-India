@@ -7,7 +7,8 @@ const Skills = require("../../models/user/SkillsModel");
 const ProgramDesignation = require("../../models/user/ProgramDesignationModel");
 const ProgramDepartment = require("../../models/user/ProgramDepartmentModel");
 const ProgramSkills = require("../../models/user/ProgramSkills");
-const Teams = require("../../models/user/TeamModel");
+const Team = require("../../models/user/TeamModel");
+const UserTeam = require("../../models/user/userTeamModel");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -189,13 +190,16 @@ exports.postTeam = async (req, res) => {
     const { teamName, userIds } = req.body;
     //joi validation
     const { error } = postTeamSchema.validate(req.body);
-    
+
     if (error) {
       errorForJoi(error, res);
     }
     // Add users to the team
+    let newTeam = await Team.create({
+      teamName
+    });
     for (let i = 0; i < userIds.length; i++) {
-      await Teams.create({ teamName, userId: userIds[i] });
+      await UserTeam.create({ userId: userIds[i], teamId: newTeam.id });
     }
     res.status(200).json({ message: "Team created successfully" });
   } catch (err) {

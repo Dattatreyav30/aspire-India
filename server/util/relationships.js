@@ -67,11 +67,6 @@ const relationships = () => {
   personalityOutcomes.hasMany(personalityResults);
   personalityResults.belongsTo(personalityOutcomes);
 
-  //one team can have many users
-
-  User.hasMany(Team);
-  Team.belongsTo(User);
-
   //one program can have many actions
   programs.hasMany(actions);
   actions.belongsTo(programs);

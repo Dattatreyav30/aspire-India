@@ -11,9 +11,6 @@ const Team = sequelize.define("team", {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  username: {
-    type: Sequelize.STRING,
-  },
 });
 
 module.exports = Team;
