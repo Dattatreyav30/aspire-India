@@ -9,6 +9,7 @@ const ProgramDepartment = require("../../models/user/ProgramDepartmentModel");
 const ProgramSkills = require("../../models/user/ProgramSkills");
 const Team = require("../../models/user/TeamModel");
 const UserTeam = require("../../models/user/userTeamModel");
+const ProgramAssigned = require("../../models/user/ProgramAssignedModel");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -19,6 +20,8 @@ const departmentSchema = require("../../helpers/validation").departmentSchema;
 const skillSchema = require("../../helpers/validation").skillSchema;
 const designationSchema = require("../../helpers/validation").designationSchema;
 const postTeamSchema = require("../../helpers/validation").postTeamSchema;
+const postProgramAssignedSchema =
+  require("../../helpers/validation").postProgramAssignedSchema;
 
 //adding up the department
 exports.postDepartment = async (req, res) => {
@@ -196,12 +199,41 @@ exports.postTeam = async (req, res) => {
     }
     // Add users to the team
     let newTeam = await Team.create({
-      teamName
+      teamName,
     });
     for (let i = 0; i < userIds.length; i++) {
       await UserTeam.create({ userId: userIds[i], teamId: newTeam.id });
     }
     res.status(200).json({ message: "Team created successfully" });
+  } catch (err) {
+    error500(err, res);
+  }
+};
+
+exports.postProgramAssigned = async (req, res, next) => {
+  try {
+    const { programId, teamId } = req.body;
+    const { error } = postProgramAssignedSchema.validate(req.body);
+    if (error) {
+      errorForJoi(error, res);
+    }
+
+    const existingAssignment = await ProgramAssigned.findOne({
+      where: { programId, teamId },
+    });
+
+    // If the assignment already exists, return a 409 Conflict response
+    if (existingAssignment) {
+      return res
+        .status(409)
+        .json({ error: "Program is already assigned to the team" });
+    }
+    await ProgramAssigned.create({
+      programId,
+      teamId,
+    });
+
+    res.status(200).json({ message: "succesfull" });
   } catch (err) {
     error500(err, res);
   }

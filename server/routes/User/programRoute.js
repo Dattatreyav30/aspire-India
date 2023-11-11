@@ -31,4 +31,7 @@ router.get(
 router.post("/post-program", ProgramController.postProgramWithActions);
 router.post("/post-team", ProgramController.postTeam);
 
+router.post("/post-program-assigned", ProgramController.postProgramAssigned);
+
 module.exports = router;
+    
