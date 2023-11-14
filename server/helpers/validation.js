@@ -73,13 +73,15 @@ const PersonalityQnschema = Joi.object({
   optionNames: Joi.array().items(Joi.string()).required(),
 });
 
-
 const postQnLogicJumpschema = Joi.object({
   questionName: Joi.string().required(),
   optionNames: Joi.array().items(Joi.string()).required(),
-  logicJumpQnId: Joi.number().integer().positive().allow(null)
+  logicJumpQnId: Joi.number().integer().positive().allow(null),
 });
 
+const personalityOutcomeSchema = Joi.object({
+  outcomeName: Joi.string().required(),
+});
 module.exports = {
   userSchema,
   loginSchema,
@@ -93,5 +95,6 @@ module.exports = {
   tinyHabitCompletionSchema,
   postProgramAssignedSchema,
   PersonalityQnschema,
-  postQnLogicJumpschema
+  postQnLogicJumpschema,
+  personalityOutcomeSchema
 };

@@ -11,4 +11,6 @@ router.post(
   PersonalityController.postQnsWithLogicJumps
 );
 
+router.post("/post-outcomes", PersonalityController.postPersonalityOutcomes);
+
 module.exports = router;
