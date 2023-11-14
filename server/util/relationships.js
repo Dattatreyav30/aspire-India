@@ -77,7 +77,7 @@ const relationships = () => {
   personalityOutcomes.hasMany(personalityResults);
   personalityResults.belongsTo(personalityOutcomes);
 
-  //personality logic jump relations
+  // personality logic jump relations
   personalityLogicJump.belongsTo(personalityQuestions, {
     as: "fromQuestion",
     foreignKey: "from_question_id",
