@@ -12,6 +12,7 @@ const personalityOutcomes = require("../models/user/PersonalityOutcomeModel");
 const personalityResults = require("../models/user/PersonalityResultsModel");
 const personalityOptions = require("../models/user/PersonalityQnOptionsModel");
 const personalityOutcomesRecord = require("../models/user/personalityOutcomeRecModel");
+const personalityLogicJump = require("../models/user/personalityLogicJump");
 
 //programs
 const programs = require("../models/user/Programs");
@@ -25,7 +26,6 @@ const CommunityPosts = require("../models/user/CommunityPostsModel");
 const CommunityPostsLikes = require("../models/user/CommunityPostsLikesModel");
 const CommunityPostsComnts = require("../models/user/CommunityPostsComntsModel");
 
-
 //programs department  designation
 const Department = require("../models/user/DepartmentModel");
 const Skills = require("../models/user/SkillsModel");
@@ -33,7 +33,6 @@ const Designation = require("../models/user/DesignationModel");
 const ProgramDesignation = require("../models/user/ProgramDesignationModel");
 const ProgramSkills = require("../models/user/ProgramSkills");
 const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
-
 
 //teamchat
 const UserTeam = require("../models/user/userTeamModel");
@@ -69,7 +68,7 @@ const relationships = () => {
   personalityOutcomesRecord.belongsTo(User);
 
   personalityOutcomes.hasMany(personalityOutcomesRecord);
-  personalityOutcomesRecord.belongsTo(personalityOutcomes);   
+  personalityOutcomesRecord.belongsTo(personalityOutcomes);
 
   //ading userid and personalityOutcomesId. here , we can relate personality outcomes with id
   User.hasMany(personalityResults);
@@ -77,6 +76,19 @@ const relationships = () => {
 
   personalityOutcomes.hasMany(personalityResults);
   personalityResults.belongsTo(personalityOutcomes);
+
+  personalityLogicJump.belongsTo(personalityQuestions, {
+    as: "fromQuestion",
+    foreignKey: "from_question_id",
+  });
+  personalityLogicJump.belongsTo(personalityQuestions, {
+    as: "toQuestion",
+    foreignKey: "to_question_id",
+  });
+  personalityLogicJump.belongsTo(personalityOptions, {
+    as: "option",
+    foreignKey: "option_id",
+  });
 
   //one program can have many actions
   programs.hasMany(actions);
@@ -129,7 +141,7 @@ const relationships = () => {
   //one program  can be part of many departments
   programs.hasMany(ProgramDepartment);
   ProgramDepartment.belongsTo(programs);
-  
+
   //linking department with program to identify which are all the programs are linked with which department
   Department.hasMany(ProgramDepartment);
   ProgramDepartment.belongsTo(Department);
@@ -138,7 +150,7 @@ const relationships = () => {
   Skills.hasMany(ProgramSkills);
   ProgramSkills.belongsTo(Skills);
 
- //linking designation with program to identify which are all the programs are linked with which designation
+  //linking designation with program to identify which are all the programs are linked with which designation
   Designation.hasMany(ProgramDesignation);
   ProgramDesignation.belongsTo(Designation);
 
