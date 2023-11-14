@@ -7,6 +7,10 @@ const personalityOptions = sequelize.define("personalityOptions", {
     primaryKey: true,
     autoIncrement: true,
   },
+  optionName: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 });
 
 module.exports = personalityOptions;

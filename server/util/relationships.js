@@ -11,6 +11,7 @@ const personalityQnRecModel = require("../models/user/PersonalityQnRecModel");
 const personalityOutcomes = require("../models/user/PersonalityOutcomeModel");
 const personalityResults = require("../models/user/PersonalityResultsModel");
 const personalityOptions = require("../models/user/PersonalityQnOptionsModel");
+const personalityOutcomesRecord = require("../models/user/personalityOutcomeRecModel");
 
 //programs
 const programs = require("../models/user/Programs");
@@ -59,6 +60,16 @@ const relationships = () => {
   // one personality can have multiple options
   personalityQuestions.hasMany(personalityOptions);
   personalityOptions.belongsTo(personalityQuestions);
+
+  //linking optionId to record model
+  personalityQnRecModel.hasMany(personalityOptions);
+  personalityOptions.belongsTo(personalityQnRecModel);
+
+  User.hasMany(personalityOutcomesRecord);
+  personalityOutcomesRecord.belongsTo(User);
+
+  personalityOutcomes.hasMany(personalityOutcomesRecord);
+  personalityOutcomesRecord.belongsTo(personalityOutcomes);   
 
   //ading userid and personalityOutcomesId. here , we can relate personality outcomes with id
   User.hasMany(personalityResults);
