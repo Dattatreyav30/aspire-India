@@ -55,7 +55,6 @@ const postTeamSchema = Joi.object({
   userIds: Joi.array().items(Joi.number().integer()).min(1).required(),
 });
 
-
 const postTinyHabitsSchema = Joi.object({
   habit_name: Joi.string().min(3).max(255).required(),
 });
@@ -69,7 +68,10 @@ const postProgramAssignedSchema = Joi.object({
   teamId: Joi.string().required(),
 });
 
-
+const PersonalityQnschema = Joi.object({
+  questionName: Joi.string().required(),
+  optionNames: Joi.array().items(Joi.string()).required(),
+});
 module.exports = {
   userSchema,
   loginSchema,
@@ -82,4 +84,5 @@ module.exports = {
   postTinyHabitsSchema,
   tinyHabitCompletionSchema,
   postProgramAssignedSchema,
+  PersonalityQnschema,
 };

@@ -11,6 +11,10 @@ const personalityQuestions = sequelize.define("personalityQuestions", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  isLogicJump : {
+    type:Sequelize.BOOLEAN,
+    defaultValue : false
+  }
 });
 
 module.exports = personalityQuestions;
