@@ -13,4 +13,6 @@ router.post(
 
 router.post("/post-outcomes", PersonalityController.postPersonalityOutcomes);
 
+router.post("/post-records", PersonalityController.postPersonalityRecords);
+
 module.exports = router;
