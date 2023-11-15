@@ -11,7 +11,6 @@ const authorization = async (req, res, next) => {
     const token = req.headers.token;
     const tokenVerification = jwt.verify(token, jwtSecretKey);
     req.user = tokenVerification.token;
-    console.log(req.userId);
     next();
   } catch (err) {
     console.log(err);

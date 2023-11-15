@@ -1,7 +1,7 @@
 const PersonalityQuestions = require("../../models/user/PersonalityQuestionModel");
 const PersonalityOptions = require("../../models/user/PersonalityQnOptionsModel");
 const personalityOutcomes = require("../../models/user/PersonalityOutcomeModel");
-const PersonalityQnRecord = require("../../models/user/personalityOutcomeRecModel");
+const PersonalityQnRecord = require("../../models/user/PersonalityQnRecModel");
 const personalityLogicJump = require("../../models/user/personalityLogicJump");
 const personalityResults = require("../../models/user/PersonalityResultsModel");
 
@@ -106,14 +106,19 @@ exports.postPersonalityRecords = async (req, res) => {
     if (error) {
       errorForJoi(error, res);
     }
+
+    // console.log(questionAnsIds)
     for (let i = 0; i < questionAnsIds.length; i++) {
+      console.log(questionAnsIds[i].personalityOptionId);
       await PersonalityQnRecord.create({
-        personalityQuestionId: questionAnsIds.personalityQuestionId,
-        optionId: questionAnsIds.optionIds,
+        personalityQuestionId: questionAnsIds[i].personalityQuestionId,
+        personalityOptionId: questionAnsIds[i].personalityOptionId,
+        userId: req.user,
       });
     }
     res.status(200).json({ message: "successfull" });
   } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };

@@ -7,6 +7,13 @@ const personalityQnRecModel = sequelize.define("personalityQnRecModel", {
     primaryKey: true,
     autoIncrement: true,
   },
+  personalityOptionId: {
+    type: Sequelize.INTEGER,
+    references: {
+      model: 'PersonalityOptions', 
+      key: 'id',
+    },
+  },
 });
 
 module.exports = personalityQnRecModel;

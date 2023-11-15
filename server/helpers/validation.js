@@ -94,7 +94,7 @@ const personalityRecschema = Joi.object({
     .items(
       Joi.object({
         personalityQuestionId: Joi.string().required(),
-        optionId: Joi.string().required(),
+        personalityOptionId: Joi.string().required(),
       })
     )
     .required(),
