@@ -10,6 +10,7 @@ const ProgramSkills = require("../../models/user/ProgramSkills");
 const Team = require("../../models/user/TeamModel");
 const UserTeam = require("../../models/user/userTeamModel");
 const ProgramAssigned = require("../../models/user/ProgramAssignedModel");
+const ActionCompletion = require("../../models/user/ActionCompletion");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -22,6 +23,10 @@ const designationSchema = require("../../helpers/validation").designationSchema;
 const postTeamSchema = require("../../helpers/validation").postTeamSchema;
 const postProgramAssignedSchema =
   require("../../helpers/validation").postProgramAssignedSchema;
+
+const fs = require("fs");
+const AWS = require("aws-sdk");
+const multer = require("multer");
 
 //adding up the department
 exports.postDepartment = async (req, res) => {
@@ -235,6 +240,70 @@ exports.postProgramAssigned = async (req, res, next) => {
 
     res.status(200).json({ message: "succesfull" });
   } catch (err) {
+    error500(err, res);
+  }
+};
+
+exports.postAction = async (req, res) => {
+  try {
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_KEY,
+      region: process.env.AWS_REGION,
+    });
+
+    const imageFile = req.files["image"][0];
+    const audioFile = req.files["audio"][0];
+
+    const imageParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `uploads/images/${Date.now()}_${imageFile.originalname}`,
+      Body: imageFile.buffer,
+    };
+    const imageS3Response = await s3.upload(imageParams).promise();
+
+    const audioParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `uploads/audio/${Date.now()}_${audioFile.originalname}`,
+      Body: audioFile.buffer,
+    };
+    const audioS3Response = await s3.upload(audioParams).promise();
+
+    const { text, locationName, actionId, programId } = req.body;
+
+    const existingAction = await ActionCompletion.findOne({
+      where: { userId: req.user, actionId: actionId },
+    });
+
+    const createActionCompletion = async (frequency) => {
+      await ActionCompletion.create({
+        actionId,
+        programId,
+        userId: req.user,
+        imageUrlS3: imageS3Response.Location,
+        audioUrlS3: audioS3Response.Location,
+        text,
+        locationName,
+        frequency,
+      });
+    };
+
+    if (existingAction) {
+      // If existing action found, update the frequency
+      const updatedFrequency = existingAction.frequency + 1;
+      await createActionCompletion(updatedFrequency);
+    } else {
+      // If no existing action found, create a new record with frequency: 1
+      await createActionCompletion(1);
+    }
+
+    res.status(200).json({
+      message: "successful",
+      imageS3Response,
+      audioS3Response,
+    });
+  } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };

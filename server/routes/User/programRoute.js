@@ -1,12 +1,13 @@
 const multer = require("multer");
-
-const upload = multer({ dest: "uploads/" });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 const express = require("express");
 
 const ProgramController = require("../../controllers/user/programController");
 
 const router = express.Router();
+const userAuth = require("../../middleware/userAuth");
 
 router.post(
   "/post-department",
@@ -33,5 +34,14 @@ router.post("/post-team", ProgramController.postTeam);
 
 router.post("/post-program-assigned", ProgramController.postProgramAssigned);
 
+router.post(
+  "/post-actions",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "audio", maxCount: 1 },
+  ]),
+  userAuth.authorization,
+  ProgramController.postAction
+);
+
 module.exports = router;
-    

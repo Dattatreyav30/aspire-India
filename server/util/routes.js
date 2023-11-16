@@ -10,7 +10,7 @@ const routeFunction = () => {
   app.use("/user", userRoute);
   app.use("/program", programRoute);
   app.use("/habit", tinyHabitRoute);
-  app.use("/personality",personalityRoute);
+  app.use("/personality", personalityRoute);
 };
 
 module.exports = {

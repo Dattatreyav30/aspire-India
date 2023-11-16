@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 
-const ActionCompletion = sequelize.define('ActionCompletion', {
+const ActionCompletion = sequelize.define("ActionCompletion", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -18,9 +18,6 @@ const ActionCompletion = sequelize.define('ActionCompletion', {
   },
   locationName: {
     type: Sequelize.STRING,
-  },
-  dayRecord: {
-    type: Sequelize.DATE,
   },
   frequency: {
     type: Sequelize.INTEGER,
