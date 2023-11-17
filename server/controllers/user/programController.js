@@ -13,6 +13,8 @@ const ProgramAssigned = require("../../models/user/ProgramAssignedModel");
 const ActionCompletion = require("../../models/user/ActionCompletion");
 const User = require("../../models/user/UserModel");
 
+const { Op } = require("sequelize");
+
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 const error500 = require("../../helpers/error").error500;
@@ -227,7 +229,8 @@ exports.postProgramAssigned = async (req, res, next) => {
       errorForJoi(error, res);
     }
     const existingAssignment = await ProgramAssigned.findOne({
-      programId:programId, teamId : teamId ,
+      programId: programId,
+      teamId: teamId,
     });
 
     // If the assignment already exists, return a 409 Conflict response
@@ -247,11 +250,11 @@ exports.postProgramAssigned = async (req, res, next) => {
     for (let i = 0; i < userIds.length; i++) {
       await UserActions.create({
         userId: userIds[i],
-        programId: programId,    
+        programId: programId,
       });
     }
 
-    await ProgramAssigned.create({      
+    await ProgramAssigned.create({
       programId,
       teamId,
     });
@@ -303,6 +306,10 @@ exports.postAction = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
+    const action = await Actions.findOne({ where: { id: actionId } });
+
+    console.log(action.duration);
+
     const createActionCompletion = async (frequency) => {
       await ActionCompletion.create({
         actionId,
@@ -313,6 +320,7 @@ exports.postAction = async (req, res) => {
         text,
         locationName,
         frequency,
+        duration: action.duration,
       });
     };
 
@@ -340,15 +348,86 @@ exports.getHome = async (req, res) => {
   try {
     const user = await User.findOne({
       where: { id: req.user },
-      attributes: ["name", "totalPoints"],
     });
 
-    const programIds = await ProgramAssignedUser.findAll({
+    const userProgramIds = await UserActions.findAll({
       where: { userId: req.user },
       attributes: ["programId"],
     });
-    console.log("programidsa are ", programIds);
-    res.status(200).json({ message: user, actions: programIds });
+
+    const programIds = userProgramIds.map(
+      (userProgram) => userProgram.programId
+    );
+
+    const programs = await Program.findAll({
+      where: {
+        id: programIds,
+      },
+    });
+
+    const programData = [];
+
+    const actionCompletion = await ActionCompletion.findAll({
+      where: { userId: req.user },
+    });
+
+
+    for (const program of programs) {
+      const actions = await Actions.findAll({
+        where: { programId: program.id },
+      });
+
+      const actionsWithScores = [];
+
+      for (const action of actions) {
+        const latestActionCompletion = await ActionCompletion.findOne({
+          where: { actionId: action.id, userId: req.user },
+          order: [["createdAt", "DESC"]],
+        });
+
+        let habitScore = 0;
+        let totalPoints = 0;
+        let pointsEarned = 0;
+
+        if (
+          latestActionCompletion &&
+          latestActionCompletion.frequency !== null
+        ) {
+          habitScore = Math.floor(
+            (latestActionCompletion.frequency / action.duration) * 100
+          );
+        }
+
+        if (action.duration !== null && action.points !== null) {
+          totalPoints = action.duration * action.points;
+        }
+
+        if (
+          latestActionCompletion &&
+          latestActionCompletion.frequency !== null &&
+          action.points !== null
+        ) {
+          pointsEarned = latestActionCompletion.frequency * action.points;
+        }
+
+        actionsWithScores.push({
+          ...action.toJSON(),
+          habitScore: habitScore,
+          totalPoints: totalPoints,
+          pointsEarned: pointsEarned,
+        });
+      }
+
+      programData.push({
+        programId: program.id,
+        programName: program.programName,
+        description: program.description,
+        actions: actionsWithScores,
+        actionCompletion: actionCompletion,
+      });
+    }
+
+    res.status(200).json({ user, programData });
   } catch (err) {
     console.log(err);
     error500(err, res);

@@ -23,6 +23,10 @@ const ActionCompletion = sequelize.define("ActionCompletion", {
     type: Sequelize.INTEGER,
     defaultValue : 0
   },
+  duration : {
+    type : Sequelize.INTEGER,
+    allowNull : false
+  }
 });
 
 module.exports = ActionCompletion;
