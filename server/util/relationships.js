@@ -38,6 +38,8 @@ const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
 const UserTeam = require("../models/user/userTeamModel");
 const PrecuratedMessages = require("../Models/user/PrecuratedMessagesModel");
 const Messages = require("../models/user/MessagesModel");
+const UserActions = require("../models/user/UserActionsModel");
+const Actions = require("../models/user/ActionsModel");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -100,7 +102,7 @@ const relationships = () => {
   ProgramAssigned.belongsTo(programs);
 
   //which team is part of program
-  Team.hasMany(ProgramAssigned);
+  Team.hasMany(ProgramAssigned);   
   ProgramAssigned.belongsTo(Team);
 
   //completing action by user
@@ -110,6 +112,12 @@ const relationships = () => {
   //relating actionId so that we can identity which habit is completed
   actions.hasMany(ActionCompletion);
   ActionCompletion.belongsTo(actions);
+
+  User.hasMany(UserActions);
+  UserActions.belongsTo(User);
+
+  programs.hasMany(UserActions);
+  UserActions.belongsTo(programs);
 
   //adding programId so that we can identify which action is part of which program
   programs.hasMany(ActionCompletion);

@@ -100,6 +100,36 @@ const personalityRecschema = Joi.object({
     .required(),
 });
 
+
+const postActionValidationSchema = Joi.object({
+  body: Joi.object({
+    text: Joi.string().required(),
+    locationName: Joi.string().required(),
+    actionId: Joi.number().required(),
+    programId: Joi.number().required(),
+  }),
+  files: Joi.object({
+    image: Joi.array().items(
+      Joi.object({
+        originalname: Joi.string().required(),
+        buffer: Joi.any().required(), // Assuming it's a buffer
+        fieldname: Joi.string().required(), // Add fieldname validation
+        // Add other expected properties if needed
+      })
+    ).required(),
+    audio: Joi.array().items(
+      Joi.object({
+        originalname: Joi.string().required(),
+        buffer: Joi.any().required(), // Assuming it's a buffer
+        fieldname: Joi.string().required(), // Add fieldname validation
+        // Add other expected properties if needed
+      })
+    ).required(),
+  }),
+  user: Joi.any(), // Validate the user data type as per your application
+});
+
+
 module.exports = {
   userSchema,
   loginSchema,
@@ -116,4 +146,5 @@ module.exports = {
   postQnLogicJumpschema,
   personalityOutcomeSchema,
   personalityRecschema,
+  postActionValidationSchema,
 };

@@ -11,6 +11,7 @@ const Team = require("../../models/user/TeamModel");
 const UserTeam = require("../../models/user/userTeamModel");
 const ProgramAssigned = require("../../models/user/ProgramAssignedModel");
 const ActionCompletion = require("../../models/user/ActionCompletion");
+const User = require("../../models/user/UserModel");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -23,10 +24,13 @@ const designationSchema = require("../../helpers/validation").designationSchema;
 const postTeamSchema = require("../../helpers/validation").postTeamSchema;
 const postProgramAssignedSchema =
   require("../../helpers/validation").postProgramAssignedSchema;
+const postActionValidationSchema =
+  require("../../helpers/validation").postActionValidationSchema;
 
 const fs = require("fs");
 const AWS = require("aws-sdk");
 const multer = require("multer");
+const UserActions = require("../../models/user/UserActionsModel");
 
 //adding up the department
 exports.postDepartment = async (req, res) => {
@@ -142,7 +146,6 @@ exports.postProgramWithActions = async (req, res) => {
       description,
       totalPoints,
     });
-    console.log(createProgram.id);
 
     // Filter and insert departments
     const validDepartments = await Department.findAll({
@@ -219,33 +222,54 @@ exports.postProgramAssigned = async (req, res, next) => {
   try {
     const { programId, teamId } = req.body;
     const { error } = postProgramAssignedSchema.validate(req.body);
+
     if (error) {
       errorForJoi(error, res);
     }
-
     const existingAssignment = await ProgramAssigned.findOne({
-      where: { programId, teamId },
+      programId:programId, teamId : teamId ,
     });
 
     // If the assignment already exists, return a 409 Conflict response
+
     if (existingAssignment) {
       return res
         .status(409)
         .json({ error: "Program is already assigned to the team" });
     }
-    await ProgramAssigned.create({
+    const userIdsData = await UserTeam.findAll({
+      where: { teamId: teamId },
+      attributes: ["userId"],
+    });
+
+    const userIds = userIdsData.map((user) => user.userId);
+
+    for (let i = 0; i < userIds.length; i++) {
+      await UserActions.create({
+        userId: userIds[i],
+        programId: programId,    
+      });
+    }
+
+    await ProgramAssigned.create({      
       programId,
       teamId,
     });
 
     res.status(200).json({ message: "succesfull" });
   } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };
 
 exports.postAction = async (req, res) => {
   try {
+    // const { error } = postActionValidationSchema.validate(req);
+
+    // if (error) {
+    //   errorForJoi(error, res);
+    // }
     const s3 = new AWS.S3({
       accessKeyId: process.env.AWS_ACCESS_KEY,
       secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -272,7 +296,11 @@ exports.postAction = async (req, res) => {
     const { text, locationName, actionId, programId } = req.body;
 
     const existingAction = await ActionCompletion.findOne({
-      where: { userId: req.user, actionId: actionId },
+      where: {
+        userId: req.user,
+        actionId: actionId,
+      },
+      order: [["createdAt", "DESC"]],
     });
 
     const createActionCompletion = async (frequency) => {
@@ -290,7 +318,7 @@ exports.postAction = async (req, res) => {
 
     if (existingAction) {
       // If existing action found, update the frequency
-      const updatedFrequency = existingAction.frequency + 1;
+      const updatedFrequency = Math.floor(existingAction.frequency) + 1;
       await createActionCompletion(updatedFrequency);
     } else {
       // If no existing action found, create a new record with frequency: 1
@@ -302,6 +330,25 @@ exports.postAction = async (req, res) => {
       imageS3Response,
       audioS3Response,
     });
+  } catch (err) {
+    console.log(err);
+    error500(err, res);
+  }
+};
+
+exports.getHome = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { id: req.user },
+      attributes: ["name", "totalPoints"],
+    });
+
+    const programIds = await ProgramAssignedUser.findAll({
+      where: { userId: req.user },
+      attributes: ["programId"],
+    });
+    console.log("programidsa are ", programIds);
+    res.status(200).json({ message: user, actions: programIds });
   } catch (err) {
     console.log(err);
     error500(err, res);

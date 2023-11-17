@@ -32,7 +32,11 @@ router.get(
 router.post("/post-program", ProgramController.postProgramWithActions);
 router.post("/post-team", ProgramController.postTeam);
 
-router.post("/post-program-assigned", ProgramController.postProgramAssigned);
+router.post(
+  "/post-program-assigned",
+  userAuth.authorization,
+  ProgramController.postProgramAssigned
+);
 
 router.post(
   "/post-actions",
@@ -43,5 +47,7 @@ router.post(
   userAuth.authorization,
   ProgramController.postAction
 );
+
+router.get("/get-home", userAuth.authorization, ProgramController.getHome);
 
 module.exports = router;

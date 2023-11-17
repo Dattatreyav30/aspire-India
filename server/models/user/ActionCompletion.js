@@ -21,6 +21,7 @@ const ActionCompletion = sequelize.define("ActionCompletion", {
   },
   frequency: {
     type: Sequelize.INTEGER,
+    defaultValue : 0
   },
 });
 
