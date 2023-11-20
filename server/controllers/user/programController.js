@@ -17,6 +17,14 @@ const User = require("../../models/user/UserModel");
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 const error500 = require("../../helpers/error").error500;
 
+//functions
+const {
+  getUser,
+  getActionsWithScores,
+  getProgramData,
+  getUserProgramIds,
+} = require("../../helpers/controllerFunctions");
+
 //joiSchemas
 const departmentSchema = require("../../helpers/validation").departmentSchema;
 const skillSchema = require("../../helpers/validation").skillSchema;
@@ -27,7 +35,6 @@ const postProgramAssignedSchema =
 const postActionValidationSchema =
   require("../../helpers/validation").postActionValidationSchema;
 
-const fs = require("fs");
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const UserActions = require("../../models/user/UserActionsModel");
@@ -208,16 +215,16 @@ exports.postTeam = async (req, res) => {
     let newTeam = await Team.create({
       teamName,
     });
-    const userNames = await User.findAll({ 
+    const userNames = await User.findAll({
       where: { id: userIds },
-      attributes: ['id', 'name']
+      attributes: ["id", "name"],
     });
-  
-    const userNamesMap = {}; 
+
+    const userNamesMap = {};
     userNames.forEach((user) => {
       userNamesMap[user.id] = user.name;
     });
-    
+
     for (let i = 0; i < userIds.length; i++) {
       const userId = userIds[i];
       const userName = userNamesMap[userId];
@@ -356,112 +363,15 @@ exports.postAction = async (req, res) => {
 
 exports.getHome = async (req, res) => {
   try {
-    const user = await User.findOne({
-      where: { id: req.user },
-    });
+    const userId = req.user;
 
-    const userProgramIds = await UserActions.findAll({
-      where: { userId: req.user },
-      attributes: ["programId"],
-    });
-
-    const programIds = userProgramIds.map(
-      (userProgram) => userProgram.programId
-    );
-
-    const programs = await Program.findAll({
-      where: {
-        id: programIds,
-      },
-    });
-
-    const programData = [];
-
-    for (const program of programs) {
-      const actions = await Actions.findAll({
-        where: { programId: program.id },
-      });
-
-      const actionsWithScores = [];
-
-      for (const action of actions) {
-        const latestActionCompletion = await ActionCompletion.findOne({
-          where: { actionId: action.id, userId: req.user },
-          order: [["createdAt", "DESC"]],
-        });
-
-        const actionCompletionSingle = await ActionCompletion.findAll({
-          where: { actionId: action.id },
-        });
-
-        let habitScore = 0;
-        let totalPoints = 0;
-        let pointsEarned = 0;
-
-        if (
-          latestActionCompletion &&
-          latestActionCompletion.frequency !== null
-        ) {
-          habitScore = Math.floor(
-            (latestActionCompletion.frequency / action.duration) * 100
-          );
-        }
-
-        if (action.duration !== null && action.points !== null) {
-          totalPoints = action.duration * action.points;
-        }
-
-        if (
-          latestActionCompletion &&
-          latestActionCompletion.frequency !== null &&
-          action.points !== null
-        ) {
-          pointsEarned = latestActionCompletion.frequency * action.points;
-        }
-
-        actionsWithScores.push({
-          ...action.toJSON(),
-          habitScore: habitScore,
-          totalPoints: totalPoints,
-          pointsEarned: pointsEarned,
-          actionCompletion: actionCompletionSingle || null,
-        });
-      }
-
-      const team = await ProgramAssigned.findOne({
-        where: { programId: program.id },
-        attributes: ["teamId"],
-      });
-
-      console.log(team.teamId);
-
-      const users = await UserTeam.findAll({ where: { teamId: team.teamId } });
-      console.log(users);
-
-      programData.push({
-        programId: program.id,
-        programName: program.programName,
-        description: program.description,
-        actions: actionsWithScores,
-        UserTeam: users,
-      });
-    }
+    const user = await getUser(userId);
+    const programIds = await getUserProgramIds(userId);
+    const programData = await getProgramData(programIds, userId);
 
     res.status(200).json({ user, programData });
   } catch (err) {
     console.log(err);
-    error500(err, res);
-  }
-};
-
-//need to link actions withnactionCompletion
-
-exports.getProgramTeam = async (req, res) => {
-  try {
-    const user = User.findOne({ where: { id: req.user } });
-
-    const programTeams = ProgramAssigned.findAll();
-  } catch (err) {
     error500(err, res);
   }
 };
