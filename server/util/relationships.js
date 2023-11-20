@@ -102,7 +102,7 @@ const relationships = () => {
   ProgramAssigned.belongsTo(programs);
 
   //which team is part of program
-  Team.hasMany(ProgramAssigned);   
+  Team.hasMany(ProgramAssigned);
   ProgramAssigned.belongsTo(Team);
 
   //completing action by user
@@ -122,6 +122,10 @@ const relationships = () => {
   //adding programId so that we can identify which action is part of which program
   programs.hasMany(ActionCompletion);
   ActionCompletion.belongsTo(programs);
+
+  //relating userid with community posts
+  User.hasMany(CommunityPosts);   
+  CommunityPosts.belongsTo(User);   
 
   //for each like , linking it to the post id
   CommunityPosts.hasMany(CommunityPostsLikes);

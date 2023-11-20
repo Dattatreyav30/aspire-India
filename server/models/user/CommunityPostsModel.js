@@ -11,13 +11,17 @@ const CommunityPosts = sequelize.define("communityPosts", {
     type: Sequelize.STRING,
   },
   likeCount: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.INTEGER,   
     defaultValue: 0,
   },
   commentsCount: {
     type: Sequelize.INTEGER,
     defaultValue: 0,
   },
+  userName  : {
+    type : Sequelize.STRING,
+    allowNull : false
+  }
 });
 
 module.exports = CommunityPosts;

@@ -1,12 +1,12 @@
 const Program = require("../models/user/Programs");
 const Actions = require("../models/user/ActionsModel");
-const Designation = require("../models/user/DesignationModel");
-const Department = require("../models/user/DepartmentModel");
-const Skills = require("../models/user/SkillsModel");
-const ProgramDesignation = require("../models/user/ProgramDesignationModel");
-const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
-const ProgramSkills = require("../models/user/ProgramSkills");
-const Team = require("../models/user/TeamModel");
+// const Designation = require("../models/user/DesignationModel");
+// const Department = require("../models/user/DepartmentModel");
+// const Skills = require("../models/user/SkillsModel");
+// const ProgramDesignation = require("../models/user/ProgramDesignationModel");
+// const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
+// const ProgramSkills = require("../models/user/ProgramSkills");
+// const Team = require("../models/user/TeamModel");
 const UserTeam = require("../models/user/userTeamModel");
 const ProgramAssigned = require("../models/user/ProgramAssignedModel");
 const ActionCompletion = require("../models/user/ActionCompletion");
@@ -63,20 +63,12 @@ const getActionsWithScores = async (programId, userId) => {
         habitScore = Math.floor(
           (latestActionCompletion.frequency / action.duration) * 100
         );
+        pointsEarned = latestActionCompletion.frequency * action.points;
       }
 
       if (action.duration !== null && action.points !== null) {
         totalPoints = action.duration * action.points;
       }
-
-      if (
-        latestActionCompletion &&
-        latestActionCompletion.frequency !== null &&
-        action.points !== null
-      ) {
-        pointsEarned = latestActionCompletion.frequency * action.points;
-      }
-
       actionsWithScores.push({
         ...action.toJSON(),
         habitScore,
@@ -125,9 +117,38 @@ const getProgramData = async (programIds, userId) => {
   }
 };
 
+const AWS = require("aws-sdk");
+require("dotenv").config();
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+  region: process.env.AWS_REGION,
+});
+
+const s3ImageParams = (imageFile, route) => {
+  const imageParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `${route}${Date.now()}_${imageFile.originalname}`,
+    Body: imageFile.buffer,
+  };
+  return imageParams;
+};
+
+const s3AudioParams = (audioFile, route) => {
+  const audioParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `${route}${Date.now()}_${audioFile.originalname}`,
+    Body: audioFile.buffer,
+  };
+  return audioParams;
+};
 module.exports = {
   getUser,
   getActionsWithScores,
   getProgramData,
   getUserProgramIds,
+  s3,
+  s3ImageParams,
+  s3AudioParams,
 };

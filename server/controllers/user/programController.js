@@ -12,6 +12,7 @@ const UserTeam = require("../../models/user/userTeamModel");
 const ProgramAssigned = require("../../models/user/ProgramAssignedModel");
 const ActionCompletion = require("../../models/user/ActionCompletion");
 const User = require("../../models/user/UserModel");
+const UserActions = require("../../models/user/UserActionsModel");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -20,9 +21,11 @@ const error500 = require("../../helpers/error").error500;
 //functions
 const {
   getUser,
-  getActionsWithScores,
   getProgramData,
   getUserProgramIds,
+  s3,
+  s3ImageParams,
+  s3AudioParams
 } = require("../../helpers/controllerFunctions");
 
 //joiSchemas
@@ -32,12 +35,8 @@ const designationSchema = require("../../helpers/validation").designationSchema;
 const postTeamSchema = require("../../helpers/validation").postTeamSchema;
 const postProgramAssignedSchema =
   require("../../helpers/validation").postProgramAssignedSchema;
-const postActionValidationSchema =
-  require("../../helpers/validation").postActionValidationSchema;
-
-const AWS = require("aws-sdk");
-const multer = require("multer");
-const UserActions = require("../../models/user/UserActionsModel");
+// const postActionValidationSchema =
+//   require("../../helpers/validation").postActionValidationSchema;
 
 //adding up the department
 exports.postDepartment = async (req, res) => {
@@ -289,27 +288,21 @@ exports.postAction = async (req, res) => {
     // if (error) {
     //   errorForJoi(error, res);
     // }
-    const s3 = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY,
-      secretAccessKey: process.env.AWS_SECRET_KEY,
-      region: process.env.AWS_REGION,
-    });
+    // const s3 = new AWS.S3({
+    //   accessKeyId: process.env.AWS_ACCESS_KEY,
+    //   secretAccessKey: process.env.AWS_SECRET_KEY,
+    //   region: process.env.AWS_REGION,
+    // });
 
     const imageFile = req.files["image"][0];
     const audioFile = req.files["audio"][0];
 
-    const imageParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `uploads/images/${Date.now()}_${imageFile.originalname}`,
-      Body: imageFile.buffer,
-    };
+    const imageParams = s3ImageParams(imageFile, "uploads/images/");
+
     const imageS3Response = await s3.upload(imageParams).promise();
 
-    const audioParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `uploads/audio/${Date.now()}_${audioFile.originalname}`,
-      Body: audioFile.buffer,
-    };
+    const audioParams = s3AudioParams(audioFile,"uploads/audio/");
+    
     const audioS3Response = await s3.upload(audioParams).promise();
 
     const { text, locationName, actionId, programId } = req.body;
