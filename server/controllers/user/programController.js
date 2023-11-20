@@ -13,8 +13,6 @@ const ProgramAssigned = require("../../models/user/ProgramAssignedModel");
 const ActionCompletion = require("../../models/user/ActionCompletion");
 const User = require("../../models/user/UserModel");
 
-const { Op } = require("sequelize");
-
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 const error500 = require("../../helpers/error").error500;
@@ -308,8 +306,6 @@ exports.postAction = async (req, res) => {
 
     const action = await Actions.findOne({ where: { id: actionId } });
 
-    console.log(action.duration);
-
     const createActionCompletion = async (frequency) => {
       await ActionCompletion.create({
         actionId,
@@ -332,6 +328,9 @@ exports.postAction = async (req, res) => {
       // If no existing action found, create a new record with frequency: 1
       await createActionCompletion(1);
     }
+
+    const user = await User.findOne({ where: { id: req.user } });
+    await user.update({ totalPoints: action.points });
 
     res.status(200).json({
       message: "successful",
@@ -367,10 +366,9 @@ exports.getHome = async (req, res) => {
 
     const programData = [];
 
-    const actionCompletion = await ActionCompletion.findAll({
-      where: { userId: req.user },
-    });
-
+    // const actionCompletion = await ActionCompletion.findAll({
+    //   where: { userId: req.user },
+    // });
 
     for (const program of programs) {
       const actions = await Actions.findAll({
@@ -385,6 +383,10 @@ exports.getHome = async (req, res) => {
           order: [["createdAt", "DESC"]],
         });
 
+        const actionCompletionSingle = await ActionCompletion.findAll({
+          where: { actionId: action.id },
+        });
+        console.log(action.id);
         let habitScore = 0;
         let totalPoints = 0;
         let pointsEarned = 0;
@@ -415,6 +417,7 @@ exports.getHome = async (req, res) => {
           habitScore: habitScore,
           totalPoints: totalPoints,
           pointsEarned: pointsEarned,
+          actionCompletion: actionCompletionSingle || null,
         });
       }
 
@@ -423,7 +426,6 @@ exports.getHome = async (req, res) => {
         programName: program.programName,
         description: program.description,
         actions: actionsWithScores,
-        actionCompletion: actionCompletion,
       });
     }
 
@@ -433,3 +435,5 @@ exports.getHome = async (req, res) => {
     error500(err, res);
   }
 };
+
+//need to link actions withnactionCompletion
