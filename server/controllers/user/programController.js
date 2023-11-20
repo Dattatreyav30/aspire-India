@@ -191,7 +191,6 @@ exports.postProgramWithActions = async (req, res) => {
 
     res.status(200).json({ message: "program created successfully" });
   } catch (err) {
-    console.error(err);
     error500(err, res);
   }
 };
@@ -209,8 +208,20 @@ exports.postTeam = async (req, res) => {
     let newTeam = await Team.create({
       teamName,
     });
+    const userNames = await User.findAll({ 
+      where: { id: userIds },
+      attributes: ['id', 'name']
+    });
+  
+    const userNamesMap = {}; 
+    userNames.forEach((user) => {
+      userNamesMap[user.id] = user.name;
+    });
+    
     for (let i = 0; i < userIds.length; i++) {
-      await UserTeam.create({ userId: userIds[i], teamId: newTeam.id });
+      const userId = userIds[i];
+      const userName = userNamesMap[userId];
+      await UserTeam.create({ userId, teamId: newTeam.id, userName });
     }
     res.status(200).json({ message: "Team created successfully" });
   } catch (err) {
@@ -407,7 +418,6 @@ exports.getHome = async (req, res) => {
         ) {
           pointsEarned = latestActionCompletion.frequency * action.points;
         }
-       
 
         actionsWithScores.push({
           ...action.toJSON(),
@@ -418,15 +428,15 @@ exports.getHome = async (req, res) => {
         });
       }
 
-      const team =  await ProgramAssigned.findOne({
+      const team = await ProgramAssigned.findOne({
         where: { programId: program.id },
-        attributes: ["teamId"], 
-      })
+        attributes: ["teamId"],
+      });
 
-      console.log(team.teamId)
+      console.log(team.teamId);
 
       const users = await UserTeam.findAll({ where: { teamId: team.teamId } });
-      console.log(users)
+      console.log(users);
 
       programData.push({
         programId: program.id,
