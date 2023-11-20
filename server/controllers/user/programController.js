@@ -366,10 +366,6 @@ exports.getHome = async (req, res) => {
 
     const programData = [];
 
-    // const actionCompletion = await ActionCompletion.findAll({
-    //   where: { userId: req.user },
-    // });
-
     for (const program of programs) {
       const actions = await Actions.findAll({
         where: { programId: program.id },
@@ -386,7 +382,7 @@ exports.getHome = async (req, res) => {
         const actionCompletionSingle = await ActionCompletion.findAll({
           where: { actionId: action.id },
         });
-        console.log(action.id);
+
         let habitScore = 0;
         let totalPoints = 0;
         let pointsEarned = 0;
@@ -411,6 +407,7 @@ exports.getHome = async (req, res) => {
         ) {
           pointsEarned = latestActionCompletion.frequency * action.points;
         }
+       
 
         actionsWithScores.push({
           ...action.toJSON(),
@@ -421,11 +418,22 @@ exports.getHome = async (req, res) => {
         });
       }
 
+      const team =  await ProgramAssigned.findOne({
+        where: { programId: program.id },
+        attributes: ["teamId"], 
+      })
+
+      console.log(team.teamId)
+
+      const users = await UserTeam.findAll({ where: { teamId: team.teamId } });
+      console.log(users)
+
       programData.push({
         programId: program.id,
         programName: program.programName,
         description: program.description,
         actions: actionsWithScores,
+        UserTeam: users,
       });
     }
 
@@ -437,3 +445,13 @@ exports.getHome = async (req, res) => {
 };
 
 //need to link actions withnactionCompletion
+
+exports.getProgramTeam = async (req, res) => {
+  try {
+    const user = User.findOne({ where: { id: req.user } });
+
+    const programTeams = ProgramAssigned.findAll();
+  } catch (err) {
+    error500(err, res);
+  }
+};
