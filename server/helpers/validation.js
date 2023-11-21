@@ -100,7 +100,6 @@ const personalityRecschema = Joi.object({
     .required(),
 });
 
-
 const postActionValidationSchema = Joi.object({
   body: Joi.object({
     text: Joi.string().required(),
@@ -109,32 +108,38 @@ const postActionValidationSchema = Joi.object({
     programId: Joi.number().required(),
   }),
   files: Joi.object({
-    image: Joi.array().items(
-      Joi.object({
-        originalname: Joi.string().required(),
-        buffer: Joi.any().required(), // Assuming it's a buffer
-        fieldname: Joi.string().required(), // Add fieldname validation
-        // Add other expected properties if needed
-      })
-    ).required(),
-    audio: Joi.array().items(
-      Joi.object({
-        originalname: Joi.string().required(),
-        buffer: Joi.any().required(), // Assuming it's a buffer
-        fieldname: Joi.string().required(), // Add fieldname validation
-        // Add other expected properties if needed
-      })
-    ).required(),
+    image: Joi.array()
+      .items(
+        Joi.object({
+          originalname: Joi.string().required(),
+          buffer: Joi.any().required(), // Assuming it's a buffer
+          fieldname: Joi.string().required(), // Add fieldname validation
+          // Add other expected properties if needed
+        })
+      )
+      .required(),
+    audio: Joi.array()
+      .items(
+        Joi.object({
+          originalname: Joi.string().required(),
+          buffer: Joi.any().required(), // Assuming it's a buffer
+          fieldname: Joi.string().required(), // Add fieldname validation
+          // Add other expected properties if needed
+        })
+      )
+      .required(),
   }),
   user: Joi.any(), // Validate the user data type as per your application
 });
-
 
 const postLikesSchema = Joi.object({
   emoji_type: Joi.string().required(),
   communityPostId: Joi.string().required(),
 });
 
+const postPrecuratesMessagesSchema = Joi.object({
+  message: Joi.string().required(),
+});
 
 module.exports = {
   userSchema,
@@ -153,5 +158,5 @@ module.exports = {
   personalityOutcomeSchema,
   personalityRecschema,
   postActionValidationSchema,
-  postLikesSchema
+  postLikesSchema,
 };
