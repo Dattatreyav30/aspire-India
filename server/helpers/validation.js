@@ -130,6 +130,12 @@ const postActionValidationSchema = Joi.object({
 });
 
 
+const postLikesSchema = Joi.object({
+  emoji_type: Joi.string().required(),
+  communityPostId: Joi.string().required(),
+});
+
+
 module.exports = {
   userSchema,
   loginSchema,
@@ -147,4 +153,5 @@ module.exports = {
   personalityOutcomeSchema,
   personalityRecschema,
   postActionValidationSchema,
+  postLikesSchema
 };

@@ -11,4 +11,4 @@ router.post("/signup", upload.none(), userController.userSignup);
 
 router.post("/login", upload.none(), userController.login);
 
-module.exports = router;
+module.exports = router;         

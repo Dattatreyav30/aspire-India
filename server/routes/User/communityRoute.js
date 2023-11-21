@@ -16,5 +16,10 @@ router.post(
   userAuth.authorization,
   communityController.postCommunityPosts
 );
+router.post(
+  "/post-likes",
+  userAuth.authorization,
+  communityController.postLikes
+);
 
 module.exports = router;

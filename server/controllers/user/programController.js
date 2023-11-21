@@ -25,7 +25,7 @@ const {
   getUserProgramIds,
   s3,
   s3ImageParams,
-  s3AudioParams
+  s3AudioParams,
 } = require("../../helpers/controllerFunctions");
 
 //joiSchemas
@@ -301,8 +301,8 @@ exports.postAction = async (req, res) => {
 
     const imageS3Response = await s3.upload(imageParams).promise();
 
-    const audioParams = s3AudioParams(audioFile,"uploads/audio/");
-    
+    const audioParams = s3AudioParams(audioFile, "uploads/audio/");
+
     const audioS3Response = await s3.upload(audioParams).promise();
 
     const { text, locationName, actionId, programId } = req.body;
