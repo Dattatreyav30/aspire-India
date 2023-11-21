@@ -61,7 +61,7 @@ exports.postLikes = async (req, res) => {
     const post = await CommunityPosts.findOne({
       where: { id: communityPostId },
     });
-    
+
     await post.update({ likeCount: Number(post.likeCount) + 1 });
 
     // Handle successful creation

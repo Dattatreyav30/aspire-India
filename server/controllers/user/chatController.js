@@ -20,3 +20,12 @@ exports.postPrecuratedMessages = async (req, res) => {
     error500(err, res);
   }
 };
+
+exports.getPrecuratedMessages = async (req, res) => {
+  try {
+    let precurateMsg = await PrecuratedMessages.findAll();
+    return res.status(200).send({ message: "successful", precurateMsg });
+  } catch (err) {
+    error500(err, res);
+  }
+};

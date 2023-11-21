@@ -13,4 +13,10 @@ const chatController = require("../../controllers/user/chatController");
 
 router.post("/post-pre-message", chatController.postPrecuratedMessages);
 
+router.get(
+  "/get-pre-messages",
+  userAuth.authorization,
+  chatController.getPrecuratedMessages
+);
+
 module.exports = router;
