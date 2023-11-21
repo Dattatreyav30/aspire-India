@@ -35,8 +35,8 @@ exports.postLikes = async (req, res) => {
     // Check if the user has already liked the post
 
     const { error } = await postLikesSchema.validate(req.body);
-    if(error){
-        errorHandlerJoi(error,res)
+    if (error) {
+      errorHandlerJoi(error, res);
     }
     const existingLike = await CommunityPostsLikes.findOne({
       where: {
@@ -58,6 +58,12 @@ exports.postLikes = async (req, res) => {
       emoji_type,
     });
 
+    const post = await CommunityPosts.findOne({
+      where: { id: communityPostId },
+    });
+    
+    await post.update({ likeCount: Number(post.likeCount) + 1 });
+
     // Handle successful creation
     res.status(200).json({ message: "Like added successfully", like });
   } catch (err) {
@@ -67,29 +73,32 @@ exports.postLikes = async (req, res) => {
   }
 };
 
-
 exports.undoLike = async (req, res) => {
-    try {
-      const { communityPostId } = req.body;
-  
-      // Check if the user previously liked the post
-      const existingLike = await CommunityPostsLikes.findOne({
-        where: {
-          userId: req.user,
-          communityPostId: communityPostId,
-        },
-      });
-  
-      // If the like exists, remove it
-      if (existingLike) {
-        await existingLike.destroy();
-        return res.status(200).json({ message: "Like undone successfully" });
-      } else {
-        return res.status(404).json({ message: "Like not found or already undone" });
-      }
-    } catch (err) {
-      console.log(err);
-      error500(err, res);
+  try {
+    const { communityPostId } = req.body;
+
+    // Check if the user previously liked the post
+    const existingLike = await CommunityPostsLikes.findOne({
+      where: {
+        userId: req.user,
+        communityPostId: communityPostId,
+      },
+    });
+    console.log(req.user, communityPostId);
+
+    console.log(req.user);
+    console.log(existingLike);
+    // If the like exists, remove it
+    if (existingLike) {
+      await existingLike.destroy();
+      return res.status(200).json({ message: "Like undone successfully" });
+    } else {
+      return res
+        .status(404)
+        .json({ message: "Like not found or already undone" });
     }
-  };
-  
+  } catch (err) {
+    console.log(err);
+    error500(err, res);
+  }
+};

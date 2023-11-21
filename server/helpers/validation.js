@@ -159,4 +159,5 @@ module.exports = {
   personalityRecschema,
   postActionValidationSchema,
   postLikesSchema,
+  postPrecuratesMessagesSchema
 };

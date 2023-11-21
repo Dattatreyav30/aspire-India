@@ -2,7 +2,7 @@ const PrecuratedMessages = require("../../models/user/PrecuratedMessagesModel");
 
 const { error500, errorHandlerJoi } = require("../../helpers/error");
 
-const { postPrecuratesMessagesSchema } = req.body;
+const { postPrecuratesMessagesSchema } = require("../../helpers/validation");
 
 exports.postPrecuratedMessages = async (req, res) => {
   try {
