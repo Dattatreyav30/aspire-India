@@ -22,4 +22,6 @@ router.post(
   communityController.postLikes
 );
 
+router.post("/undo-like", userAuth.authorization, communityController.undoLike);
+
 module.exports = router;

@@ -66,3 +66,30 @@ exports.postLikes = async (req, res) => {
     error500(err, res);
   }
 };
+
+
+exports.undoLike = async (req, res) => {
+    try {
+      const { communityPostId } = req.body;
+  
+      // Check if the user previously liked the post
+      const existingLike = await CommunityPostsLikes.findOne({
+        where: {
+          userId: req.user,
+          communityPostId: communityPostId,
+        },
+      });
+  
+      // If the like exists, remove it
+      if (existingLike) {
+        await existingLike.destroy();
+        return res.status(200).json({ message: "Like undone successfully" });
+      } else {
+        return res.status(404).json({ message: "Like not found or already undone" });
+      }
+    } catch (err) {
+      console.log(err);
+      error500(err, res);
+    }
+  };
+  
