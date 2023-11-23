@@ -5,7 +5,7 @@ const router = express.Router();
 const tinyHabitController = require("../../controllers/user/tinyHabitController");
 
 //moddleware
-const userAuth = require("../../middleware/userAuth");
+const userAuth = require("../../middleware/userAuth");   
 
 router.post("/post-tiny-habits", tinyHabitController.postTinyHabits);
 
