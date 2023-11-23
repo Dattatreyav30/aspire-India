@@ -28,6 +28,7 @@ const {
   s3AudioParams,
   createUserActions,
 } = require("../../helpers/controllerFunctions");
+const UserActions = require("../../models/user/UserActionsModel");
 
 //joiSchemas
 const departmentSchema = require("../../helpers/validation").departmentSchema;
@@ -215,6 +216,7 @@ exports.postTeam = async (req, res) => {
     let newTeam = await Team.create({
       teamName,
     });
+
     const userNames = await User.findAll({
       where: { id: userIds },
       attributes: ["id", "name"],
@@ -265,6 +267,7 @@ exports.postProgramAssigned = async (req, res, next) => {
     const userIds = userIdsData.map((user) => user.userId);
 
     const actions = await Actions.findAll({ where: { programId: programId } });
+
     const actionIds = actions.map((action) => action.id);
 
     for (let i = 0; i < userIds.length; i++) {
@@ -282,24 +285,12 @@ exports.postProgramAssigned = async (req, res, next) => {
 
     res.status(200).json({ message: "succesfull" });
   } catch (err) {
-    console.log(err);
     error500(err, res);
   }
 };
 
 exports.postAction = async (req, res) => {
   try {
-    // const { error } = postActionValidationSchema.validate(req);
-
-    // if (error) {
-    //   errorForJoi(error, res);
-    // }
-    // const s3 = new AWS.S3({
-    //   accessKeyId: process.env.AWS_ACCESS_KEY,
-    //   secretAccessKey: process.env.AWS_SECRET_KEY,
-    //   region: process.env.AWS_REGION,
-    // });
-
     const imageFile = req.files["image"][0];
     const audioFile = req.files["audio"][0];
 
@@ -321,9 +312,32 @@ exports.postAction = async (req, res) => {
       order: [["createdAt", "DESC"]],
     });
 
+    if (existingAction) {
+      const today = new Date(); // Get today's date
+      const createdAtDate = existingAction.createdAt; // Assuming createdAt is a Date object
+
+      // Check if the dates match (ignoring time)
+      if (
+        today.getFullYear() === createdAtDate.getFullYear() &&
+        today.getMonth() === createdAtDate.getMonth() &&
+        today.getDate() === createdAtDate.getDate()
+      ) {
+        // Dates match, throw an error
+        throw new Error("Action already completed today");
+      }
+    }
+
+    // Continue with your code if the dates don't match or if existingAction is null
+
     const action = await Actions.findOne({ where: { id: actionId } });
 
-    if (Number(existingAction.frequency) === Number(action.duration)) {
+    if (existingAction) {
+      if (Number(existingAction.frequency) === Number(action.duration)) {
+        await UserActions.update(
+          { isComplete: true },
+          { where: { actionId: actionId } }
+        );
+      }
     }
 
     const createActionCompletion = async (frequency) => {
@@ -350,7 +364,10 @@ exports.postAction = async (req, res) => {
     }
 
     const user = await User.findOne({ where: { id: req.user } });
-    await user.update({ totalPoints: action.points });
+    await user.update({
+      totalPoints: Number(user.totalPoints) + Number(action.points),
+      tower: Number(user.tower) + Number(1),
+    });
 
     res.status(200).json({
       message: "successful",
@@ -373,7 +390,6 @@ exports.getHome = async (req, res) => {
 
     res.status(200).json({ user, programData });
   } catch (err) {
-    console.log(err);
     error500(err, res);
   }
 };

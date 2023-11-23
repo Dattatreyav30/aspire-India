@@ -150,7 +150,6 @@ const s3AudioParams = (audioFile, route) => {
 };
 
 const createUserActions = async (userId, actionId, programId) => {
-  console.log()
   await UserActions.create({
     userId: userId,
     actionId: actionId,

@@ -47,6 +47,10 @@ const User = sequelize.define("user", {
     type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
+  tower: {
+    type: Sequelize.BIGINT,
+    defaultValue: 100,
+  },
 });
 
 module.exports = User;

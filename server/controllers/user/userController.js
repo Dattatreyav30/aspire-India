@@ -57,7 +57,7 @@ exports.userSignup = async (req, res) => {
     console.log(userDataCreation.id);
     res
       .status(201)
-      .json({ message: "User creation successful", data: userDataCreation });
+      .json({ message: "User creation successful"});
   } catch (err) {
     error500(err, res);
   }
