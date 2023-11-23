@@ -10,7 +10,7 @@ const Actions = require("../models/user/ActionsModel");
 const UserTeam = require("../models/user/userTeamModel");
 const ProgramAssigned = require("../models/user/ProgramAssignedModel");
 const ActionCompletion = require("../models/user/ActionCompletion");
-const User = require("../models/user/UserModel");
+const User = require("../models/user/userModel");
 const UserPrograms = require("../models/user/UserProgramsModel");
 
 const getUser = async (userId) => {

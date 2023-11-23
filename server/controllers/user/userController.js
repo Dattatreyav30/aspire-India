@@ -1,5 +1,5 @@
 //models
-const User = require("../../models/user/UserModel");
+const User = require("../../models/user/userModel");
 
 //sequelize
 const { Op, or } = require("sequelize");

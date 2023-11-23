@@ -3,7 +3,7 @@ const CommunityPosts = require("../../models/user/CommunityPostsModel");
 const CommunityPostsLikes = require("../../models/user/CommunityPostsLikesModel");
 
 //user
-const User = require("../../models/user/UserModel");
+const User = require("../../models/user/userModel");
 
 //aws
 const { s3, s3ImageParams } = require("../../helpers/controllerFunctions");

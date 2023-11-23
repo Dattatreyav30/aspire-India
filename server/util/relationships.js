@@ -1,5 +1,5 @@
 //user
-const User = require("../models/user/UserModel");
+const User = require("../models/user/userModel");
 const UserActions = require("../models/user/UserActionsModel");
 
 //tinyhabits
