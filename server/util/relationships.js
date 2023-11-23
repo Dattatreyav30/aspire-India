@@ -1,46 +1,46 @@
 //user
 const User = require("../models/user/userModel");
-const UserActions = require("../models/user/UserActionsModel");
+const UserActions = require("../models/user/userActionsModel");
 
 //tinyhabits
-const tinyHabits = require("../models/user/TinyHabitsModel");
-const tinyHabitsCompletion = require("../models/user/TinyHabitCompletionModel");
+const tinyHabits = require("../models/user/tinyHabitsModel");
+const tinyHabitsCompletion = require("../models/user/tinyHabitCompletionModel");
 
 //personality
-const personalityQuestions = require("../models/user/PersonalityQuestionModel");
-const personalityQnRecModel = require("../models/user/PersonalityQnRecModel");
-const personalityOutcomes = require("../models/user/PersonalityOutcomeModel");
-const personalityResults = require("../models/user/PersonalityResultsModel");
-const personalityOptions = require("../models/user/PersonalityQnOptionsModel");
+const personalityQuestions = require("../models/user/personalityQuestionModel");
+const personalityQnRecModel = require("../models/user/personalityQnRecModel");
+const personalityOutcomes = require("../models/user/personalityOutcomeModel");
+const personalityResults = require("../models/user/personalityResultsModel");
+const personalityOptions = require("../models/user/personalityQnOptionsModel");
 const personalityOutcomesRecord = require("../models/user/personalityOutcomeRecModel");
 const personalityLogicJump = require("../models/user/personalityLogicJump");
 
 //programs
-const programs = require("../models/user/Programs");
-const actions = require("../models/user/ActionsModel");
-const ProgramAssigned = require("../models/user/ProgramAssignedModel");
-const Team = require("../models/user/TeamModel");
-const ActionCompletion = require("../models/user/ActionCompletion");
+const programs = require("../models/user/programs");
+const actions = require("../models/user/actionsModel");
+const ProgramAssigned = require("../models/user/programAssignedModel");
+const Team = require("../models/user/teamModel");
+const ActionCompletion = require("../models/user/actionCompletion");
 
 //community posts
-const CommunityPosts = require("../models/user/CommunityPostsModel");
-const CommunityPostsLikes = require("../models/user/CommunityPostsLikesModel");
-const CommunityPostsComnts = require("../models/user/CommunityPostsComntsModel");
+const CommunityPosts = require("../models/user/communityPostsModel");
+const CommunityPostsLikes = require("../models/user/communityPostsLikesModel");
+const CommunityPostsComnts = require("../models/user/communityPostsComntsModel");
 
 //programs department  designation
-const Department = require("../models/user/DepartmentModel");
-const Skills = require("../models/user/SkillsModel");
-const Designation = require("../models/user/DesignationModel");
-const ProgramDesignation = require("../models/user/ProgramDesignationModel");
-const ProgramSkills = require("../models/user/ProgramSkills");
-const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
+const Department = require("../models/user/departmentModel");
+const Skills = require("../models/user/skillsModel");
+const Designation = require("../models/user/designationModel");
+const ProgramDesignation = require("../models/user/programDesignationModel");
+const ProgramSkills = require("../models/user/programSkills");
+const ProgramDepartment = require("../models/user/programDepartmentModel");
 
 //teamchat
 const UserTeam = require("../models/user/userTeamModel");
-const PrecuratedMessages = require("../Models/user/PrecuratedMessagesModel");
-const Messages = require("../models/user/MessagesModel");
-const UserPrograms = require("../models/user/UserProgramsModel");
-const Actions = require("../models/user/ActionsModel");
+const PrecuratedMessages = require("../models/user/precuratedMessagesModel");
+const Messages = require("../models/user/messagesModel");
+const UserPrograms = require("../models/user/userProgramsModel");
+const Actions = require("../models/user/actionsModel");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user

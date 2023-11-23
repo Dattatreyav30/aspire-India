@@ -1,5 +1,5 @@
-const TinyHabits = require("../../models/user/TinyHabitsModel");
-const TinyHabitCompletion = require("../../models/user/TinyHabitCompletionModel");
+const TinyHabits = require("../../models/user/tinyHabitsModel");
+const TinyHabitCompletion = require("../../models/user/tinyHabitCompletionModel");
 
 //JOI
 const postTinyHabitsSchema =

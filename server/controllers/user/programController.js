@@ -1,18 +1,18 @@
 //models
-const Program = require("../../models/user/Programs");
-const Actions = require("../../models/user/ActionsModel");
-const Designation = require("../../models/user/DesignationModel");
-const Department = require("../../models/user/DepartmentModel");
-const Skills = require("../../models/user/SkillsModel");
-const ProgramDesignation = require("../../models/user/ProgramDesignationModel");
-const ProgramDepartment = require("../../models/user/ProgramDepartmentModel");
-const ProgramSkills = require("../../models/user/ProgramSkills");
-const Team = require("../../models/user/TeamModel");
+const Program = require("../../models/user/programs");
+const Actions = require("../../models/user/actionsModel");
+const Designation = require("../../models/user/designationModel");
+const Department = require("../../models/user/departmentModel");
+const Skills = require("../../models/user/skillsModel");
+const ProgramDesignation = require("../../models/user/programDesignationModel");
+const ProgramDepartment = require("../../models/user/programDepartmentModel");
+const ProgramSkills = require("../../models/user/programSkills");
+const Team = require("../../models/user/teamModel");
 const UserTeam = require("../../models/user/userTeamModel");
-const ProgramAssigned = require("../../models/user/ProgramAssignedModel");
-const ActionCompletion = require("../../models/user/ActionCompletion");
+const ProgramAssigned = require("../../models/user/programAssignedModel");
+const ActionCompletion = require("../../models/user/actionCompletion");
 const User = require("../../models/user/userModel");
-const UserPrograms = require("../../models/user/UserProgramsModel");
+const UserPrograms = require("../../models/user/userProgramsModel");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -28,7 +28,7 @@ const {
   s3AudioParams,
   createUserActions,
 } = require("../../helpers/controllerFunctions");
-const UserActions = require("../../models/user/UserActionsModel");
+const UserActions = require("../../models/user/userActionsModel");
 
 //joiSchemas
 const departmentSchema = require("../../helpers/validation").departmentSchema;

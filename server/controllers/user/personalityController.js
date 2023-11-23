@@ -1,9 +1,9 @@
-const PersonalityQuestions = require("../../models/user/PersonalityQuestionModel");
-const PersonalityOptions = require("../../models/user/PersonalityQnOptionsModel");
-const personalityOutcomes = require("../../models/user/PersonalityOutcomeModel");
-const PersonalityQnRecord = require("../../models/user/PersonalityQnRecModel");
+const PersonalityQuestions = require("../../models/user/personalityQuestionModel");
+const PersonalityOptions = require("../../models/user/personalityQnOptionsModel");
+const personalityOutcomes = require("../../models/user/personalityOutcomeModel");
+const PersonalityQnRecord = require("../../models/user/personalityQnRecModel");
 const personalityLogicJump = require("../../models/user/personalityLogicJump");
-const personalityResults = require("../../models/user/PersonalityResultsModel");
+const personalityResults = require("../../models/user/personalityResultsModel");
 
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 const error500 = require("../../helpers/error").error500;

@@ -1,6 +1,6 @@
 //community
-const CommunityPosts = require("../../models/user/CommunityPostsModel");
-const CommunityPostsLikes = require("../../models/user/CommunityPostsLikesModel");
+const CommunityPosts = require("../../models/user/communityPostsModel");
+const CommunityPostsLikes = require("../../models/user/communityPostsLikesModel");
 
 //user
 const User = require("../../models/user/userModel");

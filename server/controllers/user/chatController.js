@@ -1,4 +1,4 @@
-const PrecuratedMessages = require("../../models/user/PrecuratedMessagesModel");
+const PrecuratedMessages = require("../../models/user/precuratedMessagesModel");
 
 const { error500, errorHandlerJoi } = require("../../helpers/error");
 

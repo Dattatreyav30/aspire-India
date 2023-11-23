@@ -1,5 +1,5 @@
-const Program = require("../models/user/Programs");
-const Actions = require("../models/user/ActionsModel");
+const Program = require("../models/user/programs");
+const Actions = require("../models/user/actionsModel");
 // const Designation = require("../models/user/DesignationModel");
 // const Department = require("../models/user/DepartmentModel");
 // const Skills = require("../models/user/SkillsModel");
@@ -8,10 +8,10 @@ const Actions = require("../models/user/ActionsModel");
 // const ProgramSkills = require("../models/user/ProgramSkills");
 // const Team = require("../models/user/TeamModel");
 const UserTeam = require("../models/user/userTeamModel");
-const ProgramAssigned = require("../models/user/ProgramAssignedModel");
-const ActionCompletion = require("../models/user/ActionCompletion");
+const ProgramAssigned = require("../models/user/programAssignedModel");
+const ActionCompletion = require("../models/user/actionCompletion");
 const User = require("../models/user/userModel");
-const UserPrograms = require("../models/user/UserProgramsModel");
+const UserPrograms = require("../models/user/userProgramsModel");
 
 const getUser = async (userId) => {
   try {
@@ -122,7 +122,7 @@ const getProgramData = async (programIds, userId) => {
 };
 
 const AWS = require("aws-sdk");
-const UserActions = require("../models/user/UserActionsModel");
+const UserActions = require("../models/user/userActionsModel");
 require("dotenv").config();
 
 const s3 = new AWS.S3({
