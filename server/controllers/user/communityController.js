@@ -84,10 +84,6 @@ exports.undoLike = async (req, res) => {
         communityPostId: communityPostId,
       },
     });
-    console.log(req.user, communityPostId);
-
-    console.log(req.user);
-    console.log(existingLike);
     // If the like exists, remove it
     if (existingLike) {
       await existingLike.destroy();

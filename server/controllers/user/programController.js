@@ -12,7 +12,7 @@ const UserTeam = require("../../models/user/userTeamModel");
 const ProgramAssigned = require("../../models/user/ProgramAssignedModel");
 const ActionCompletion = require("../../models/user/ActionCompletion");
 const User = require("../../models/user/UserModel");
-const UserActions = require("../../models/user/UserActionsModel");
+const UserPrograms = require("../../models/user/UserProgramsModel");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -26,6 +26,7 @@ const {
   s3,
   s3ImageParams,
   s3AudioParams,
+  createUserActions,
 } = require("../../helpers/controllerFunctions");
 
 //joiSchemas
@@ -244,11 +245,12 @@ exports.postProgramAssigned = async (req, res, next) => {
       errorForJoi(error, res);
     }
     const existingAssignment = await ProgramAssigned.findOne({
-      programId: programId,
-      teamId: teamId,
+      where: {
+        programId: programId,
+        teamId: teamId,
+      },
     });
-
-    // If the assignment already exists, return a 409 Conflict response
+    // If the assignment already exists, return a 409  response
 
     if (existingAssignment) {
       return res
@@ -262,11 +264,15 @@ exports.postProgramAssigned = async (req, res, next) => {
 
     const userIds = userIdsData.map((user) => user.userId);
 
+    const actions = await Actions.findAll({ where: { programId: programId } });
+    const actionIds = actions.map((action) => action.id);
+
     for (let i = 0; i < userIds.length; i++) {
-      await UserActions.create({
+      await UserPrograms.create({
         userId: userIds[i],
         programId: programId,
       });
+      await createUserActions(userIds[i], actionIds[i], programId);
     }
 
     await ProgramAssigned.create({
@@ -316,6 +322,9 @@ exports.postAction = async (req, res) => {
     });
 
     const action = await Actions.findOne({ where: { id: actionId } });
+
+    if (Number(existingAction.frequency) === Number(action.duration)) {
+    }
 
     const createActionCompletion = async (frequency) => {
       await ActionCompletion.create({

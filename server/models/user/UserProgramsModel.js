@@ -1,16 +1,13 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 
-const UserActions = sequelize.define("useractions", {
+const UserPrograms = sequelize.define("userprograms", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  isComplete: {
-    type: Sequelize.BOOLEAN,
-    defaultValue: false,
-  },
 });
 
-module.exports = UserActions;
+
+module.exports = UserPrograms

@@ -119,10 +119,13 @@ exports.postPersonalityRecords = async (req, res) => {
     
     res.status(200).json({ message: "successfull" });
   } catch (err) {
-    console.log(err);
     error500(err, res);
   }
 };
+
+// exports.getPersonalityQuestions = async(req,res)=>{
+  
+// }
 
 //personlity outcome results need to be captured
 //logic behind getting personality outcome

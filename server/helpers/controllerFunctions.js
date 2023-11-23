@@ -11,7 +11,7 @@ const UserTeam = require("../models/user/userTeamModel");
 const ProgramAssigned = require("../models/user/ProgramAssignedModel");
 const ActionCompletion = require("../models/user/ActionCompletion");
 const User = require("../models/user/UserModel");
-const UserActions = require("../models/user/UserActionsModel");
+const UserPrograms = require("../models/user/UserProgramsModel");
 
 const getUser = async (userId) => {
   try {
@@ -27,10 +27,14 @@ const getUser = async (userId) => {
 
 const getUserProgramIds = async (userId) => {
   try {
-    const userProgramIds = await UserActions.findAll({
+    console.log(userId);
+    console.log(UserPrograms);
+    const userProgramIds = await UserPrograms.findAll({
       where: { userId },
       attributes: ["programId"],
     });
+
+    console.log(userProgramIds);
     return userProgramIds.map((userProgram) => userProgram.programId);
   } catch (error) {
     throw error;
@@ -118,6 +122,7 @@ const getProgramData = async (programIds, userId) => {
 };
 
 const AWS = require("aws-sdk");
+const UserActions = require("../models/user/UserActionsModel");
 require("dotenv").config();
 
 const s3 = new AWS.S3({
@@ -143,6 +148,15 @@ const s3AudioParams = (audioFile, route) => {
   };
   return audioParams;
 };
+
+const createUserActions = async (userId, actionId, programId) => {
+  console.log()
+  await UserActions.create({
+    userId: userId,
+    actionId: actionId,
+    programId: programId,
+  });
+};
 module.exports = {
   getUser,
   getActionsWithScores,
@@ -151,4 +165,5 @@ module.exports = {
   s3,
   s3ImageParams,
   s3AudioParams,
+  createUserActions,
 };

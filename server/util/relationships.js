@@ -1,5 +1,6 @@
 //user
 const User = require("../models/user/UserModel");
+const UserActions = require("../models/user/UserActionsModel");
 
 //tinyhabits
 const tinyHabits = require("../models/user/TinyHabitsModel");
@@ -38,7 +39,7 @@ const ProgramDepartment = require("../models/user/ProgramDepartmentModel");
 const UserTeam = require("../models/user/userTeamModel");
 const PrecuratedMessages = require("../Models/user/PrecuratedMessagesModel");
 const Messages = require("../models/user/MessagesModel");
-const UserActions = require("../models/user/UserActionsModel");
+const UserPrograms = require("../models/user/UserProgramsModel");
 const Actions = require("../models/user/ActionsModel");
 
 const relationships = () => {
@@ -113,11 +114,11 @@ const relationships = () => {
   actions.hasMany(ActionCompletion);
   ActionCompletion.belongsTo(actions);
 
-  User.hasMany(UserActions);
-  UserActions.belongsTo(User);
+  User.hasMany(UserPrograms);
+  UserPrograms.belongsTo(User);
 
-  programs.hasMany(UserActions);
-  UserActions.belongsTo(programs);
+  programs.hasMany(UserPrograms);
+  UserPrograms.belongsTo(programs);
 
   //adding programId so that we can identify which action is part of which program
   programs.hasMany(ActionCompletion);
@@ -142,6 +143,15 @@ const relationships = () => {
   //linking each user with comment that they have given
   User.hasMany(CommunityPostsComnts);
   CommunityPostsComnts.belongsTo(User);
+
+  programs.hasMany(UserActions);
+  UserActions.belongsTo(programs);
+
+  Actions.hasMany(UserActions);
+  UserActions.belongsTo(Actions);
+    
+  User.hasMany(UserActions);
+  UserActions.belongsTo(User);
 
   //one program  can be part of many designations
   programs.hasMany(ProgramDesignation);
