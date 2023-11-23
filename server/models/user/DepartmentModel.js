@@ -2,7 +2,7 @@ const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 const { UUIDV4 } = require("sequelize"); // Import UUIDV4 from Sequelize
 
-const Department = sequelize.define("department", {
+const department = sequelize.define("department", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -13,4 +13,4 @@ const Department = sequelize.define("department", {
   },
 });
 
-module.exports = Department;
+module.exports = department;

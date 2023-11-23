@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 
-const UserActions = sequelize.define("useractions", {
+const userActions = sequelize.define("useractions", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -13,4 +13,4 @@ const UserActions = sequelize.define("useractions", {
   },
 });
 
-module.exports = UserActions;
+module.exports = userActions;

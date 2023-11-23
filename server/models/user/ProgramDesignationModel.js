@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 
-const ProgramDesignation = sequelize.define("programDesignation", {
+const programDesignation = sequelize.define("programDesignation", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -9,4 +9,4 @@ const ProgramDesignation = sequelize.define("programDesignation", {
   },
 });
 
-module.exports = ProgramDesignation;
+module.exports = programDesignation;

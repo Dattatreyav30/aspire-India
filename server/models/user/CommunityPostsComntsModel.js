@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 
-const CommunityPostsComntsModel = sequelize.define("CommunityPostsComnts", {
+const communityPostsComntsModel = sequelize.define("CommunityPostsComnts", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -11,4 +11,4 @@ const CommunityPostsComntsModel = sequelize.define("CommunityPostsComnts", {
     type: Sequelize.DATE,
   },
 });
-module.exports = CommunityPostsComntsModel;
+module.exports = communityPostsComntsModel;

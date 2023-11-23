@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 
-const Team = sequelize.define("team", {
+const team = sequelize.define("team", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -13,4 +13,4 @@ const Team = sequelize.define("team", {
   },
 });
 
-module.exports = Team;
+module.exports = team;

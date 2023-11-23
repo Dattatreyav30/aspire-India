@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 const sequelize = require("../../util/database");
 
-const PrecuratedMessages = sequelize.define("PrecuratedMessages", {
+const precuratedMessages = sequelize.define("PrecuratedMessages", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -12,4 +12,4 @@ const PrecuratedMessages = sequelize.define("PrecuratedMessages", {
   },
 });
 
-module.exports = PrecuratedMessages;
+module.exports = precuratedMessages;
