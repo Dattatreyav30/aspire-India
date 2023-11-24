@@ -94,6 +94,9 @@ const relationships = () => {
     foreignKey: "option_id",
   });
 
+  personalityOptions.hasMany(personalityQnRecModel); // One-to-many relationship
+  personalityQnRecModel.belongsTo(personalityOptions); // Belongs to PersonalityOptions
+
   //one program can have many actions
   programs.hasMany(actions);
   actions.belongsTo(programs);
@@ -125,8 +128,8 @@ const relationships = () => {
   ActionCompletion.belongsTo(programs);
 
   //relating userid with community posts
-  User.hasMany(CommunityPosts);   
-  CommunityPosts.belongsTo(User);   
+  User.hasMany(CommunityPosts);
+  CommunityPosts.belongsTo(User);
 
   //for each like , linking it to the post id
   CommunityPosts.hasMany(CommunityPostsLikes);
@@ -149,7 +152,7 @@ const relationships = () => {
 
   Actions.hasMany(UserActions);
   UserActions.belongsTo(Actions);
-    
+
   User.hasMany(UserActions);
   UserActions.belongsTo(User);
 
