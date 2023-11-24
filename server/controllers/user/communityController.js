@@ -15,12 +15,15 @@ exports.postCommunityPosts = async (req, res) => {
   try {
     const user = await User.findOne({ where: { id: req.user } });
     const imageFile = req.files["image"][0];
+    const { title, description } = req.body;
     const imageParams = s3ImageParams(imageFile, "community/uploads/images/");
     const imageS3Response = await s3.upload(imageParams).promise();
     const post = await CommunityPosts.create({
       userName: user.name,
       imageUrlS3: imageS3Response.Location,
       userId: req.user,
+      title,
+      description
     });
     res.status(200).json({ message: "successfull", post });
   } catch (err) {

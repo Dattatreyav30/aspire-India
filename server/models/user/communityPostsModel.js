@@ -7,6 +7,14 @@ const communityPosts = sequelize.define("communityPosts", {
     primaryKey: true,
     autoIncrement: true,
   },
+  title : {
+    type : Sequelize.STRING,
+    allowNull : false,
+  },
+  description : {
+    type : Sequelize.STRING,
+    allowNull : false
+  },
   imageUrlS3: {
     type: Sequelize.STRING,
   },
@@ -21,7 +29,8 @@ const communityPosts = sequelize.define("communityPosts", {
   userName  : {
     type : Sequelize.STRING,
     allowNull : false
-  }
+  },
+  
 });
 
 module.exports = communityPosts;

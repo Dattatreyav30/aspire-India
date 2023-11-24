@@ -42,6 +42,11 @@ const Messages = require("../models/user/messagesModel");
 const UserPrograms = require("../models/user/userProgramsModel");
 const Actions = require("../models/user/actionsModel");
 
+//feedback
+const feedbackQuestions = require("../models/user/feedbackquestionsModel");
+const feedbackOptions = require("../models/user/feedbackOptionsModel");
+const userFeedback = require("../models/user/userFeedback");
+
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
   User.hasMany(tinyHabitsCompletion);
@@ -64,8 +69,8 @@ const relationships = () => {
   personalityOptions.belongsTo(personalityQuestions);
 
   //linking optionId to record model
-  personalityQnRecModel.hasMany(personalityOptions);
-  personalityOptions.belongsTo(personalityQnRecModel);
+  // personalityQnRecModel.hasMany(personalityOptions);
+  // personalityOptions.belongsTo(personalityQnRecModel);
 
   User.hasMany(personalityOutcomesRecord);
   personalityOutcomesRecord.belongsTo(User);
@@ -195,6 +200,18 @@ const relationships = () => {
   //linking precurated messages to messages table , here we can identify which message is part of precurated messages
   PrecuratedMessages.hasMany(Messages);
   Messages.belongsTo(PrecuratedMessages);
+
+  //feedback relationships
+  feedbackQuestions.hasMany(feedbackOptions);
+  feedbackOptions.belongsTo(feedbackQuestions);
+
+  User.hasMany(userFeedback);
+  userFeedback.belongsTo(User);
+
+  feedbackOptions.hasMany(userFeedback);
+  userFeedback.belongsTo(feedbackOptions);
+
+
 };
 
 module.exports = relationships;
