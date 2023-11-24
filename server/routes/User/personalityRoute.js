@@ -4,6 +4,7 @@ const router = express.Router();
 
 const userAuth = require("../../middleware/userAuth");
 
+
 const PersonalityController = require("../../controllers/user/personalityController");
 
 router.post("/post-question", PersonalityController.postPersonalityQuestion);

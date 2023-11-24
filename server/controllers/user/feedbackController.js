@@ -19,3 +19,17 @@ exports.postFeedbackQnWithOptions = async (req, res) => {
     error500(err, res);
   }
 };
+
+exports.postUserFeedback = async (req, res) => {
+  try {
+    const { questionId, optionId } = req.body;
+    await userFeedback.create({
+      userId: req.user,
+      feedbackOptionId: optionId,
+      feedbackQuestionId: questionId,
+    });
+    res.status(200).json({ message: "succesfull" });
+  } catch (err) {
+    error500(err, res);
+  }
+};

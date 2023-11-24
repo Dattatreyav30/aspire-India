@@ -4,6 +4,17 @@ const router = express.Router();
 
 const feedbackController = require("../../controllers/user/feedbackController");
 
-router.post('/post-question-options',feedbackController.postFeedbackQnWithOptions);
+const userAuth = require("../../middleware/userAuth");
 
-module.exports = router
+router.post(
+  "/post-question-options",
+  feedbackController.postFeedbackQnWithOptions
+);
+
+router.post(
+  "/post-user-feedback",
+  userAuth.authorization,
+  feedbackController.postUserFeedback
+);
+
+module.exports = router;
