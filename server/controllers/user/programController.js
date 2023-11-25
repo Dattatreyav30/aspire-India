@@ -13,6 +13,7 @@ const ProgramAssigned = require("../../models/user/programAssignedModel");
 const ActionCompletion = require("../../models/user/actionCompletion");
 const User = require("../../models/user/userModel");
 const UserPrograms = require("../../models/user/userProgramsModel");
+const feedbackQuestions = require("../../models/user/feedbackquestionsModel");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -327,10 +328,9 @@ exports.postAction = async (req, res) => {
       }
     }
 
-    // Continue with your code if the dates don't match or if existingAction is null
-
     const action = await Actions.findOne({ where: { id: actionId } });
 
+    //completing action if duration and frquency match
     if (existingAction) {
       if (Number(existingAction.frequency) === Number(action.duration)) {
         await UserActions.update(
@@ -340,8 +340,9 @@ exports.postAction = async (req, res) => {
       }
     }
 
+    let actionCompletion;
     const createActionCompletion = async (frequency) => {
-      await ActionCompletion.create({
+      actionCompletion = await ActionCompletion.create({
         actionId,
         programId,
         userId: req.user,
@@ -354,13 +355,25 @@ exports.postAction = async (req, res) => {
       });
     };
 
+    let askQuestionBoolean = false;
+    const askFeedBackQn = async (frequency) => {
+      const fondQn = await feedbackQuestions.findOne({
+        where: { day: frequency },
+      });
+      if (fondQn) {
+        askQuestionBoolean = true;
+      }
+    };
+
     if (existingAction) {
       // If existing action found, update the frequency
       const updatedFrequency = Math.floor(existingAction.frequency) + 1;
       await createActionCompletion(updatedFrequency);
+      await askFeedBackQn(updatedFrequency);
     } else {
       // If no existing action found, create a new record with frequency: 1
       await createActionCompletion(1);
+      await askFeedBackQn(1);
     }
 
     const user = await User.findOne({ where: { id: req.user } });
@@ -369,10 +382,15 @@ exports.postAction = async (req, res) => {
       tower: Number(user.tower) + Number(1),
     });
 
+    console.log(createActionCompletion.actionId);
+    console.log(createActionCompletion.programId);
     res.status(200).json({
       message: "successful",
-      imageS3Response,
-      audioS3Response,
+      isFeedback: {
+        askqn: askQuestionBoolean,
+        actionId: actionCompletion.actionId,
+        programId: actionCompletion.programId,
+      },
     });
   } catch (err) {
     console.log(err);
