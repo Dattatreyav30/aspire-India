@@ -214,6 +214,12 @@ const relationships = () => {
   feedbackQuestions.hasMany(userFeedback);
   userFeedback.belongsTo(feedbackQuestions);
 
+  Actions.hasMany(userFeedback);
+  userFeedback.belongsTo(Actions);
+
+  programs.hasMany(userFeedback);
+  userFeedback.belongsTo(programs);
+
 
 };
 
