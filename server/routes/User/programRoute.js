@@ -48,6 +48,12 @@ router.post(
   ProgramController.postAction
 );
 
+router.get(
+  "/get-user-programs",
+  userAuth.authorization,
+  ProgramController.getUserPrograms
+);
+
 router.get("/get-home", userAuth.authorization, ProgramController.getHome);
 
 module.exports = router;

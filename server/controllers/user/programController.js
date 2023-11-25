@@ -411,3 +411,18 @@ exports.getHome = async (req, res) => {
     error500(err, res);
   }
 };
+
+exports.getUserPrograms = async (req, res) => {
+  try {
+    const userId = req.user;
+    const userPrograms = await UserPrograms.findAll({ where: { userId } });
+    const programIds = userPrograms.map((program) => program.programId);
+    let programs;
+    for (let i = 0; i < programIds.length; i++) {
+      programs = await Program.findOne({ where: { id: programIds[i] } });
+    }
+    res.status(200).json({ message: "succesfull", programs: programs });
+  } catch (err) {
+    error500(err, res);
+  }
+};
