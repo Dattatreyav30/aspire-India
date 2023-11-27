@@ -19,6 +19,9 @@ const generateAccessToken =
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 const error500 = require("../../helpers/error").error500;
 
+//action schemas
+const ActionCompletion = require("../../models/user/actionCompletion");
+
 exports.userSignup = async (req, res) => {
   try {
     // Validate the request body using Joi
@@ -55,9 +58,7 @@ exports.userSignup = async (req, res) => {
       password: hashedPassword,
     });
     console.log(userDataCreation.id);
-    res
-      .status(201)
-      .json({ message: "User creation successful"});
+    res.status(201).json({ message: "User creation successful" });
   } catch (err) {
     error500(err, res);
   }
@@ -103,3 +104,16 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.getUserTower = async () => {
+  try {
+    const userId = req.user;
+    const actionCompletions = await ActionCompletion.findAll({
+      where: { userId: userId },
+    });
+    res
+      .status(200)
+      .json({ message: "succesfull", actionCompletion: actionCompletions });
+  } catch (err) {
+    error500(err, res);
+  }
+};

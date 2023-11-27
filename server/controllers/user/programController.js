@@ -382,19 +382,16 @@ exports.postAction = async (req, res) => {
       totalPoints: Number(user.totalPoints) + Number(action.points),
       tower: Number(user.tower) + Number(1),
     });
-
-    console.log(createActionCompletion.actionId);
-    console.log(createActionCompletion.programId);
     res.status(200).json({
       message: "successful",
       isFeedback: {
-        askqn: askQuestionBoolean,
+        askqn: askQuestionBoolean ||null,
         actionId: actionCompletion.actionId,
         programId: actionCompletion.programId,
+        geometricShape : actionCompletion.geometricShape
       },
     });
   } catch (err) {
-    console.log(err);
     error500(err, res);
   }
 };
