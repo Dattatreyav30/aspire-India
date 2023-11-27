@@ -352,6 +352,7 @@ exports.postAction = async (req, res) => {
         locationName,
         frequency,
         duration: action.duration,
+        geometricShape: action.geometricShape,
       });
     };
 

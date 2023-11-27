@@ -26,6 +26,10 @@ const actionCompletion = sequelize.define("ActionCompletion", {
   duration : {
     type : Sequelize.INTEGER,
     allowNull : false
+  },
+  geometricShape : {
+    type : Sequelize.INTEGER,
+    allowNull : false
   }
 });
 

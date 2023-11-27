@@ -20,6 +20,10 @@ const actions = sequelize.define("actions", {
   points: {
     type: Sequelize.INTEGER,
   },
+  geometricShape : {
+    type : Sequelize.STRING,
+    allowNull : false
+  }
 });
 
 module.exports = actions;
