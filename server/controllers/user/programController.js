@@ -337,6 +337,7 @@ exports.postAction = async (req, res) => {
           { isComplete: true },
           { where: { actionId: actionId } }
         );
+        throw new Error("you already completed this habit");
       }
     }
 
@@ -356,6 +357,19 @@ exports.postAction = async (req, res) => {
       });
     };
 
+    const userActions = await UserActions.findAll({
+      where: { programId: programId, isComplete: true },
+    });
+
+    let actionCount;
+    for (let i = 0; i < userActions.length; i++) {
+      if (userActions.isComplete === true) {
+        actionCount++;
+      }
+    }
+    if (actionCount === userActions.length) {
+      await UserPrograms.update({ isComplete: true });
+    }
     let askQuestionBoolean = false;
     const askFeedBackQn = async (frequency) => {
       const fondQn = await feedbackQuestions.findOne({
@@ -385,10 +399,10 @@ exports.postAction = async (req, res) => {
     res.status(200).json({
       message: "successful",
       isFeedback: {
-        askqn: askQuestionBoolean ||null,
+        askqn: askQuestionBoolean || null,
         actionId: actionCompletion.actionId,
         programId: actionCompletion.programId,
-        geometricShape : actionCompletion.geometricShape
+        geometricShape: actionCompletion.geometricShape,
       },
     });
   } catch (err) {

@@ -7,6 +7,10 @@ const userPrograms = sequelize.define("userprograms", {
     primaryKey: true,
     autoIncrement: true,
   },
+  isComplete : {
+    type : Sequelize.INTEGER,
+    defaultValue : false
+  }
 });
 
 

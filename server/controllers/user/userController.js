@@ -104,14 +104,15 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.getUserTower = async () => {
+exports.getUserTower = async (req,res) => {
   try {
     const userId = req.user;
+    console.log(userId);
     const actionCompletions = await ActionCompletion.findAll({
       where: { userId: userId },
     });
     res
-      .status(200)
+      .status(200)                             
       .json({ message: "succesfull", actionCompletion: actionCompletions });
   } catch (err) {
     error500(err, res);
