@@ -32,6 +32,8 @@ const {
 } = require("../../helpers/controllerFunctions");
 const UserActions = require("../../models/user/userActionsModel");
 
+const { Op, or } = require("sequelize");
+
 //joiSchemas
 const departmentSchema = require("../../helpers/validation").departmentSchema;
 const skillSchema = require("../../helpers/validation").skillSchema;
@@ -509,17 +511,37 @@ exports.getUserActions = async (req, res) => {
 
           // Calculate points earned
           const pointsEarned = frequency * duration;
-          const actionCompletion = await ActionCompletion.findAll({
-            where: { actionId, userId },
+          const currentDate = new Date();
+          const startOfMonth = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            1
+          );
+          const endOfMonth = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth() + 1,
+            0
+          );
+
+          const actionCompletions = await ActionCompletion.findAll({
+            where: {
+              userId,
+              actionId,
+              createdAt: {
+                [Op.gte]: startOfMonth,
+                [Op.lte]: endOfMonth,
+              },
+            },
             attributes: ["actionId", "createdAt", "updatedAt"],
           });
+
           validActions = {
             actionDetails,
             actionId,
             habitScore,
             totalPointsEarned,
             pointsEarned,
-            actionCompletion,
+            actionCompletions,
           };
           allActionDetails.push(validActions);
         }

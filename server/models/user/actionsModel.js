@@ -23,6 +23,10 @@ const actions = sequelize.define("actions", {
   geometricShape : {
     type : Sequelize.STRING,
     allowNull : false
+  },
+  actionType :{
+    type : Sequelize.STRING,
+    allowNull : false
   }
 });
 
