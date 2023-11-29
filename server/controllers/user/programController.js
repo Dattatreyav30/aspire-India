@@ -19,6 +19,7 @@ const feedbackQuestions = require("../../models/user/feedbackquestionsModel");
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 const error500 = require("../../helpers/error").error500;
 
+const sequelize = require("../../util/database");
 //functions
 const {
   getUser,
@@ -147,6 +148,7 @@ exports.postProgramWithActions = async (req, res) => {
       departments,
       skills,
       designations,
+      geometricShape,
     } = req.body;
 
     // Create the program
@@ -189,17 +191,20 @@ exports.postProgramWithActions = async (req, res) => {
 
     // Insert actions
     for (const action of actions) {
+      console.log(action);
       await Actions.create({
         name: action.name,
         description: action.description,
         points: action.points,
         duration: action.duration,
         programId: createProgram.id,
+        geometricShape: action.geometricShape,
       });
     }
 
     res.status(200).json({ message: "program created successfully" });
   } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };
@@ -239,7 +244,7 @@ exports.postTeam = async (req, res) => {
   }
 };
 
-exports.postProgramAssigned = async (req, res, next) => {
+exports.postProgramAssigned = async (req, res) => {
   try {
     const { programId, teamId } = req.body;
     const { error } = postProgramAssignedSchema.validate(req.body);
@@ -269,16 +274,24 @@ exports.postProgramAssigned = async (req, res, next) => {
 
     const actions = await Actions.findAll({ where: { programId: programId } });
 
-    const actionIds = actions.map((action) => action.id);
+    const actionDetails = actions.map((action) => {
+      return {
+        id: action.id,
+        duration: action.duration,
+        points: action.points,
+      };
+    });
 
     for (let i = 0; i < userIds.length; i++) {
       await UserPrograms.create({
         userId: userIds[i],
         programId: programId,
       });
-      await createUserActions(userIds[i], actionIds[i], programId);
     }
 
+    for (let i = 0; i < userIds.length; i++) {
+      await createUserActions(userIds[i], actionDetails, programId);
+    }
     await ProgramAssigned.create({
       programId,
       teamId,
@@ -312,11 +325,11 @@ exports.postAction = async (req, res) => {
       },
       order: [["createdAt", "DESC"]],
     });
-
+    const action = await Actions.findOne({ where: { id: actionId } });
+    // console.log(existingAction.frequency , "this is frequency")
     if (existingAction) {
       const today = new Date(); // Get today's date
       const createdAtDate = existingAction.createdAt; // Assuming createdAt is a Date object
-
       // Check if the dates match (ignoring time)
       if (
         today.getFullYear() === createdAtDate.getFullYear() &&
@@ -328,21 +341,9 @@ exports.postAction = async (req, res) => {
       }
     }
 
-    const action = await Actions.findOne({ where: { id: actionId } });
-
     //completing action if duration and frquency match
-    if (existingAction) {
-      if (Number(existingAction.frequency) === Number(action.duration)) {
-        await UserActions.update(
-          { isComplete: true },
-          { where: { actionId: actionId } }
-        );
-        throw new Error("you already completed this habit");
-      }
-    }
-
     let actionCompletion;
-    const createActionCompletion = async (frequency) => {
+    const createActionCompletion = async () => {
       actionCompletion = await ActionCompletion.create({
         actionId,
         programId,
@@ -351,46 +352,68 @@ exports.postAction = async (req, res) => {
         audioUrlS3: audioS3Response.Location,
         text,
         locationName,
-        frequency,
-        duration: action.duration,
         geometricShape: action.geometricShape,
       });
     };
-
-    const userActions = await UserActions.findAll({
-      where: { programId: programId, isComplete: true },
+    await createActionCompletion();
+    await UserActions.update(
+      { frequency: sequelize.literal("frequency + 1") },
+      { where: { userId: req.user, actionId } }
+    );
+    const userAction = await UserActions.findOne({
+      where: { userId: req.user, actionId },
     });
 
-    let actionCount;
+    // const [incrementedAction] = await UserActions.increment("frequency", {
+    //   by: 1,
+    //   where: {
+    //     userId: req.user,
+    //     actionId: actionId,
+    //   },
+    // });
+
+    let askQuestionBoolean = false;
+    let foundQn;
+    const askFeedBackQn = async (frequency) => {
+      foundQn = await feedbackQuestions.findOne({
+        where: { day: frequency },
+      });
+      if (foundQn) {
+        askQuestionBoolean = true;
+      }
+    };
+    // res.status(200).json({updateFrequency,userAction})
+    // Call askFeedBackQn function with the updated frequency
+    await askFeedBackQn(userAction.frequency);
+    //queried beacuse to check length of  user actions
+    const userActions = await UserActions.findAll({
+      where: { programId: programId, isComplete: false, userId: req.user },
+    });
+
+    //here checking whether all the actions are complted so that i can mark program is complete
+    let actionCount = 0;
     for (let i = 0; i < userActions.length; i++) {
       if (userActions.isComplete === true) {
         actionCount++;
       }
     }
     if (actionCount === userActions.length) {
-      await UserPrograms.update({ isComplete: true });
+      UserPrograms.update(
+        { isComplete: true },
+        { where: { userId: req.user, programId } }
+      );
     }
-    let askQuestionBoolean = false;
-    const askFeedBackQn = async (frequency) => {
-      const fondQn = await feedbackQuestions.findOne({
-        where: { day: frequency },
-      });
-      if (fondQn) {
-        askQuestionBoolean = true;
-      }
-    };
-
-    if (existingAction) {
-      // If existing action found, update the frequency
-      const updatedFrequency = Math.floor(existingAction.frequency) + 1;
-      await createActionCompletion(updatedFrequency);
-      await askFeedBackQn(updatedFrequency);
-    } else {
-      // If no existing action found, create a new record with frequency: 1
-      await createActionCompletion(1);
-      await askFeedBackQn(1);
+    if (Number(userAction.frequency) === Number(userAction.duration)) {
+      await UserActions.update(
+        { isComplete: true },
+        {
+          where: {
+            actionId: userAction.actionId,
+            userId: Number(req.user),
+          },
+        }
+      );
     }
-
     const user = await User.findOne({ where: { id: req.user } });
     await user.update({
       totalPoints: Number(user.totalPoints) + Number(action.points),
@@ -400,12 +423,14 @@ exports.postAction = async (req, res) => {
       message: "successful",
       isFeedback: {
         askqn: askQuestionBoolean || null,
+        questionId: foundQn,
         actionId: actionCompletion.actionId,
         programId: actionCompletion.programId,
         geometricShape: actionCompletion.geometricShape,
       },
     });
   } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };
@@ -427,13 +452,81 @@ exports.getHome = async (req, res) => {
 exports.getUserPrograms = async (req, res) => {
   try {
     const userId = req.user;
-    const userPrograms = await UserPrograms.findAll({ where: { userId } });
+    const userPrograms = await UserPrograms.findAll({
+      where: { userId, isComplete: false },
+    });
     const programIds = userPrograms.map((program) => program.programId);
-    let programs;
-    for (let i = 0; i < programIds.length; i++) {
-      programs = await Program.findOne({ where: { id: programIds[i] } });
+    const programTeamDetails = await ProgramAssigned.findAll({
+      where: { programId: programIds },
+      attributes: ["programId", "teamId"],
+    });
+    let programs = [];
+    for (let i = 0; i < programTeamDetails.length; i++) {
+      const { programId, teamId } = programTeamDetails[i];
+
+      const programDetails = await Program.findOne({
+        where: { id: programId },
+      });
+      const teamDetails = await UserTeam.findOne({ where: { id: teamId } });
+
+      if (programDetails && teamDetails) {
+        const linkedProgram = {
+          program: programDetails,
+          team: teamDetails,
+        };
+        programs.push(linkedProgram);
+      }
     }
-    res.status(200).json({ message: "succesfull", programs: programs });
+    res.status(200).json({ message: "successful", teamPrograms: programs });
+  } catch (err) {
+    console.log(err);
+    error500(err, res);
+  }
+};
+exports.getUserActions = async (req, res) => {
+  try {
+    const userId = req.user;
+    const allActionDetails = [];
+    const userActions = await UserActions.findAll({
+      where: { userId: userId, isComplete: false },
+    });
+    // Process each UserAction
+    let validActions;
+    await Promise.all(
+      userActions.map(async (userAction) => {
+        // console.log(userAction)
+        const { actionId, frequency, duration, totalPoints } = userAction;
+
+        // Fetch the Action details for the given actionId
+        const actionDetails = await Actions.findByPk(actionId);
+
+        if (actionDetails) {
+          // Calculate habitscore
+          const habitScore = (frequency / duration) * 100;
+          console.log(habitScore, frequency, duration);
+          // Calculate totalpoints earned
+          const totalPointsEarned = duration * totalPoints;
+
+          // Calculate points earned
+          const pointsEarned = frequency * duration;
+          const actionCompletion = await ActionCompletion.findAll({
+            where: { actionId, userId },
+            attributes: ["actionId", "createdAt", "updatedAt"],
+          });
+          validActions = {
+            actionDetails,
+            actionId,
+            habitScore,
+            totalPointsEarned,
+            pointsEarned,
+            actionCompletion,
+          };
+          allActionDetails.push(validActions);
+        }
+      })
+    );
+
+    res.status(200).json({ userActions: allActionDetails });
   } catch (err) {
     error500(err, res);
   }

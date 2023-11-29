@@ -56,4 +56,10 @@ router.get(
 
 router.get("/get-home", userAuth.authorization, ProgramController.getHome);
 
+router.get(
+  "/get-user-actions",
+  userAuth.authorization,
+  ProgramController.getUserActions
+);
+
 module.exports = router;

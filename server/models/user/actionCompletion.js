@@ -19,14 +19,6 @@ const actionCompletion = sequelize.define("ActionCompletion", {
   locationName: {
     type: Sequelize.STRING,
   },
-  frequency: {
-    type: Sequelize.INTEGER,
-    defaultValue : 0
-  },
-  duration : {
-    type : Sequelize.INTEGER,
-    allowNull : false
-  },
   geometricShape : {
     type : Sequelize.INTEGER,
     allowNull : false

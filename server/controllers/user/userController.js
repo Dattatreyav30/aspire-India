@@ -60,6 +60,7 @@ exports.userSignup = async (req, res) => {
     console.log(userDataCreation.id);
     res.status(201).json({ message: "User creation successful" });
   } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };
@@ -104,7 +105,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.getUserTower = async (req,res) => {
+exports.getUserTower = async (req, res) => {
   try {
     const userId = req.user;
     console.log(userId);
@@ -112,7 +113,7 @@ exports.getUserTower = async (req,res) => {
       where: { userId: userId },
     });
     res
-      .status(200)                             
+      .status(200)
       .json({ message: "succesfull", actionCompletion: actionCompletions });
   } catch (err) {
     error500(err, res);

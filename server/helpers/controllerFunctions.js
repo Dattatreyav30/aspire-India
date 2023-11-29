@@ -149,12 +149,17 @@ const s3AudioParams = (audioFile, route) => {
   return audioParams;
 };
 
-const createUserActions = async (userId, actionId, programId) => {
-  await UserActions.create({
-    userId: userId,
-    actionId: actionId,
-    programId: programId,
-  });
+const createUserActions = async (userId, actionDetails, programId) => {
+  console.log(actionDetails)
+  for (let i = 0; i < actionDetails.length; i++) {
+    await UserActions.create({
+      userId: userId,
+      actionId: actionDetails[i].id,
+      programId: programId,
+      duration : actionDetails[i].duration,
+      totalPoints:actionDetails[i].points
+    });
+  }
 };
 module.exports = {
   getUser,

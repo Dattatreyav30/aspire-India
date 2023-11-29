@@ -11,6 +11,18 @@ const userActions = sequelize.define("useractions", {
     type: Sequelize.BOOLEAN,
     defaultValue: false,
   },
+  frequency: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+  },
+  duration: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  totalPoints:{
+    type:Sequelize.INTEGER,
+    allowNull:false
+  }
 });
 
 module.exports = userActions;
