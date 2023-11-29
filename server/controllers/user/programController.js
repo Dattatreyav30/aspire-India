@@ -201,6 +201,7 @@ exports.postProgramWithActions = async (req, res) => {
         duration: action.duration,
         programId: createProgram.id,
         geometricShape: action.geometricShape,
+        actionType : action.actionType
       });
     }
 
