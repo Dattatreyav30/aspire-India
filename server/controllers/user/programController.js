@@ -46,78 +46,104 @@ const postProgramAssignedSchema =
 
 //adding up the department
 exports.postDepartment = async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const { departmentName } = req.body;
     const { error } = departmentSchema.validate(req.body);
+
     if (error) {
-      errorForJoi(error);
+      return errorForJoi(error);
     }
 
-    // Check if the department already exists
     const existingDepartment = await Department.findOne({
-      where: { departmentName: departmentName },
+      where: { departmentName },
+      transaction: t,
     });
 
     if (existingDepartment) {
+      await t.rollback();
       return res.status(400).json({ message: "Department already exists" });
     }
 
-    let newDept = await Department.create({ departmentName });
+    let newDept = await Department.create(
+      { departmentName },
+      { transaction: t }
+    );
+    await t.commit();
     res
       .status(200)
       .json({ message: "Department created successfully", dept: newDept });
   } catch (err) {
+    await t.rollback();
     error500(err, res);
   }
 };
 
 exports.postSkills = async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const { skillName } = req.body;
-
-    //validating with joi
     const { error } = skillSchema.validate(req.body);
+
     if (error) {
-      errorForJoi(error);
+      return errorForJoi(error);
     }
 
-    // Check if the skill already exists
-    const existingSkill = await Skills.findOne({ where: { skillName } });
+    const existingSkill = await Skills.findOne({
+      where: { skillName },
+      transaction: t,
+    });
 
     if (existingSkill) {
+      await t.rollback();
       return res.status(400).json({ message: "Skill already exists" });
     }
 
-    let newSkill = await Skills.create({ skillName });
+    let newSkill = await Skills.create({ skillName }, { transaction: t });
+    await t.commit();
     res
       .status(200)
       .json({ message: "Skill created successfully", skill: newSkill });
   } catch (err) {
+    await t.rollback();
     error500(err, res);
   }
 };
 
 exports.postDesignation = async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const { designationName } = req.body;
     const { error } = designationSchema.validate(req.body);
+
     if (error) {
-      errorForJoi(error);
+      return errorForJoi(error);
     }
-    // Check if the designation already exists
+
     const existingDesignation = await Designation.findOne({
       where: { designationName },
+      transaction: t,
     });
+
     if (existingDesignation) {
+      await t.rollback();
       return res.status(400).json({ message: "Designation already exists" });
     }
 
-    let newDesignation = await Designation.create({ designationName });
+    let newDesignation = await Designation.create(
+      { designationName },
+      { transaction: t }
+    );
+    await t.commit();
     res.status(200).json({
       message: "Designation created successfully",
       designation: newDesignation,
     });
   } catch (err) {
+    await t.rollback();
     error500(err, res);
   }
 };
@@ -141,6 +167,8 @@ exports.getDeptSkillsDesgntn = async (req, res) => {
 };
 
 exports.postProgramWithActions = async (req, res) => {
+  const t = await sequelize.transaction(); // Start a transaction
+
   try {
     const {
       programName,
@@ -150,85 +178,111 @@ exports.postProgramWithActions = async (req, res) => {
       departments,
       skills,
       designations,
-      geometricShape,
     } = req.body;
 
-    // Create the program
-    const createProgram = await Program.create({
-      programName,
-      description,
-      totalPoints,
-    });
+    // Create the program within the transaction
+    const createProgram = await Program.create(
+      {
+        programName,
+        description,
+        totalPoints,
+      },
+      { transaction: t }
+    );
 
-    // Filter and insert departments
+    // Filter and insert departments within the transaction
     const validDepartments = await Department.findAll({
       where: { id: departments },
+      transaction: t,
     });
     for (const department of validDepartments) {
-      await ProgramDepartment.create({
-        departmentId: department.id,
-        programId: createProgram.id,
-      });
+      await ProgramDepartment.create(
+        {
+          departmentId: department.id,
+          programId: createProgram.id,
+        },
+        { transaction: t }
+      );
     }
 
-    // Filter and insert designations
+    // Filter and insert designations within the transaction
     const validDesignations = await Designation.findAll({
       where: { id: designations },
+      transaction: t,
     });
     for (const designation of validDesignations) {
-      await ProgramDesignation.create({
-        designationId: designation.id,
-        programId: createProgram.id,
-      });
+      await ProgramDesignation.create(
+        {
+          designationId: designation.id,
+          programId: createProgram.id,
+        },
+        { transaction: t }
+      );
     }
 
-    // Filter and insert skills
-    const validSkills = await Skills.findAll({ where: { id: skills } });
+    // Filter and insert skills within the transaction
+    const validSkills = await Skills.findAll({
+      where: { id: skills },
+      transaction: t,
+    });
     for (const skill of validSkills) {
-      await ProgramSkills.create({
-        skillId: skill.id,
-        programId: createProgram.id,
-      });
+      await ProgramSkills.create(
+        {
+          skillId: skill.id,
+          programId: createProgram.id,
+        },
+        { transaction: t }
+      );
     }
 
-    // Insert actions
+    // Insert actions within the transaction
     for (const action of actions) {
-      console.log(action);
-      await Actions.create({
-        name: action.name,
-        description: action.description,
-        points: action.points,
-        duration: action.duration,
-        programId: createProgram.id,
-        geometricShape: action.geometricShape,
-        actionType : action.actionType
-      });
+      await Actions.create(
+        {
+          name: action.name,
+          description: action.description,
+          points: action.points,
+          duration: action.duration,
+          programId: createProgram.id,
+          geometricShape: action.geometricShape,
+          actionType: action.actionType,
+        },
+        { transaction: t }
+      );
     }
 
+    await t.commit(); // Commit the transaction
     res.status(200).json({ message: "program created successfully" });
   } catch (err) {
+    await t.rollback(); // Rollback transaction on error
     console.log(err);
     error500(err, res);
   }
 };
 
 exports.postTeam = async (req, res) => {
+  const t = await sequelize.transaction(); // Start a transaction
+
   try {
     const { teamName, userIds } = req.body;
-    //joi validation
+
     const { error } = postTeamSchema.validate(req.body);
 
     if (error) {
       errorForJoi(error, res);
     }
-    // Add users to the team
-    let newTeam = await Team.create({
-      teamName,
-    });
+
+    let newTeam = await Team.create(
+      {
+        teamName,
+      },
+      { transaction: t }
+    );
 
     const userNames = await User.findAll({
       where: { id: userIds },
       attributes: ["id", "name"],
+      transaction: t,
     });
 
     const userNamesMap = {};
@@ -239,15 +293,23 @@ exports.postTeam = async (req, res) => {
     for (let i = 0; i < userIds.length; i++) {
       const userId = userIds[i];
       const userName = userNamesMap[userId];
-      await UserTeam.create({ userId, teamId: newTeam.id, userName });
+      await UserTeam.create(
+        { userId, teamId: newTeam.id, userName },
+        { transaction: t }
+      );
     }
+
+    await t.commit();
     res.status(200).json({ message: "Team created successfully" });
   } catch (err) {
+    await t.rollback();
     error500(err, res);
   }
 };
 
 exports.postProgramAssigned = async (req, res) => {
+  const t = await sequelize.transaction(); // Start a transaction
+
   try {
     const { programId, teamId } = req.body;
     const { error } = postProgramAssignedSchema.validate(req.body);
@@ -255,27 +317,34 @@ exports.postProgramAssigned = async (req, res) => {
     if (error) {
       errorForJoi(error, res);
     }
+
     const existingAssignment = await ProgramAssigned.findOne({
       where: {
         programId: programId,
         teamId: teamId,
       },
+      transaction: t,
     });
-    // If the assignment already exists, return a 409  response
 
     if (existingAssignment) {
+      await t.rollback(); // Rollback transaction if assignment exists
       return res
         .status(409)
         .json({ error: "Program is already assigned to the team" });
     }
+
     const userIdsData = await UserTeam.findAll({
       where: { teamId: teamId },
       attributes: ["userId"],
+      transaction: t,
     });
 
     const userIds = userIdsData.map((user) => user.userId);
 
-    const actions = await Actions.findAll({ where: { programId: programId } });
+    const actions = await Actions.findAll({
+      where: { programId: programId },
+      transaction: t,
+    });
 
     const actionDetails = actions.map((action) => {
       return {
@@ -286,37 +355,46 @@ exports.postProgramAssigned = async (req, res) => {
     });
 
     for (let i = 0; i < userIds.length; i++) {
-      await UserPrograms.create({
-        userId: userIds[i],
-        programId: programId,
-      });
+      await UserPrograms.create(
+        {
+          userId: userIds[i],
+          programId: programId,
+        },
+        { transaction: t }
+      );
     }
 
     for (let i = 0; i < userIds.length; i++) {
-      await createUserActions(userIds[i], actionDetails, programId);
+      await createUserActions(userIds[i], actionDetails, programId, t);
     }
-    await ProgramAssigned.create({
-      programId,
-      teamId,
-    });
 
+    await ProgramAssigned.create(
+      {
+        programId,
+        teamId,
+      },
+      { transaction: t }
+    );
+
+    await t.commit(); // Commit the transaction
     res.status(200).json({ message: "succesfull" });
   } catch (err) {
+    await t.rollback(); // Rollback transaction on error
     error500(err, res);
   }
 };
 
 exports.postAction = async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const imageFile = req.files["image"][0];
     const audioFile = req.files["audio"][0];
 
     const imageParams = s3ImageParams(imageFile, "uploads/images/");
-
     const imageS3Response = await s3.upload(imageParams).promise();
 
     const audioParams = s3AudioParams(audioFile, "uploads/audio/");
-
     const audioS3Response = await s3.upload(audioParams).promise();
 
     const { text, locationName, actionId, programId } = req.body;
@@ -327,85 +405,87 @@ exports.postAction = async (req, res) => {
         actionId: actionId,
       },
       order: [["createdAt", "DESC"]],
+      transaction: t,
     });
-    const action = await Actions.findOne({ where: { id: actionId } });
-    // console.log(existingAction.frequency , "this is frequency")
+
+    const action = await Actions.findOne({
+      where: { id: actionId },
+      transaction: t,
+    });
+
     if (existingAction) {
-      const today = new Date(); // Get today's date
-      const createdAtDate = existingAction.createdAt; // Assuming createdAt is a Date object
-      // Check if the dates match (ignoring time)
+      const today = new Date();
+      const createdAtDate = existingAction.createdAt;
       if (
         today.getFullYear() === createdAtDate.getFullYear() &&
         today.getMonth() === createdAtDate.getMonth() &&
         today.getDate() === createdAtDate.getDate()
       ) {
-        // Dates match, throw an error
         throw new Error("Action already completed today");
       }
     }
 
-    //completing action if duration and frquency match
     let actionCompletion;
     const createActionCompletion = async () => {
-      actionCompletion = await ActionCompletion.create({
-        actionId,
-        programId,
-        userId: req.user,
-        imageUrlS3: imageS3Response.Location,
-        audioUrlS3: audioS3Response.Location,
-        text,
-        locationName,
-        geometricShape: action.geometricShape,
-      });
+      actionCompletion = await ActionCompletion.create(
+        {
+          actionId,
+          programId,
+          userId: req.user,
+          imageUrlS3: imageS3Response.Location,
+          audioUrlS3: audioS3Response.Location,
+          text,
+          locationName,
+          geometricShape: action.geometricShape,
+        },
+        { transaction: t }
+      );
     };
     await createActionCompletion();
+
     await UserActions.update(
       { frequency: sequelize.literal("frequency + 1") },
-      { where: { userId: req.user, actionId } }
+      { where: { userId: req.user, actionId }, transaction: t }
     );
+
     const userAction = await UserActions.findOne({
       where: { userId: req.user, actionId },
+      transaction: t,
     });
-
-    // const [incrementedAction] = await UserActions.increment("frequency", {
-    //   by: 1,
-    //   where: {
-    //     userId: req.user,
-    //     actionId: actionId,
-    //   },
-    // });
 
     let askQuestionBoolean = false;
     let foundQn;
     const askFeedBackQn = async (frequency) => {
       foundQn = await feedbackQuestions.findOne({
         where: { day: frequency },
+        transaction: t,
       });
       if (foundQn) {
         askQuestionBoolean = true;
       }
     };
-    // res.status(200).json({updateFrequency,userAction})
-    // Call askFeedBackQn function with the updated frequency
+
     await askFeedBackQn(userAction.frequency);
-    //queried beacuse to check length of  user actions
+
     const userActions = await UserActions.findAll({
       where: { programId: programId, isComplete: false, userId: req.user },
+      transaction: t,
     });
 
-    //here checking whether all the actions are complted so that i can mark program is complete
     let actionCount = 0;
     for (let i = 0; i < userActions.length; i++) {
       if (userActions.isComplete === true) {
         actionCount++;
       }
     }
+
     if (actionCount === userActions.length) {
-      UserPrograms.update(
+      await UserPrograms.update(
         { isComplete: true },
-        { where: { userId: req.user, programId } }
+        { where: { userId: req.user, programId }, transaction: t }
       );
     }
+
     if (Number(userAction.frequency) === Number(userAction.duration)) {
       await UserActions.update(
         { isComplete: true },
@@ -414,14 +494,24 @@ exports.postAction = async (req, res) => {
             actionId: userAction.actionId,
             userId: Number(req.user),
           },
+          transaction: t,
         }
       );
     }
-    const user = await User.findOne({ where: { id: req.user } });
-    await user.update({
-      totalPoints: Number(user.totalPoints) + Number(action.points),
-      tower: Number(user.tower) + Number(1),
+
+    const user = await User.findOne({
+      where: { id: req.user },
+      transaction: t,
     });
+    await user.update(
+      {
+        totalPoints: Number(user.totalPoints) + Number(action.points),
+        tower: Number(user.tower) + Number(1),
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
     res.status(200).json({
       message: "successful",
       isFeedback: {
@@ -433,6 +523,7 @@ exports.postAction = async (req, res) => {
       },
     });
   } catch (err) {
+    await t.rollback();
     console.log(err);
     error500(err, res);
   }

@@ -7,6 +7,7 @@ const personalityResults = require("../../models/user/personalityResultsModel");
 
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 const error500 = require("../../helpers/error").error500;
+const sequelize = require("../../util/database");
 
 //joi validation
 const personalityQnschema =
@@ -21,6 +22,8 @@ const personalityRecSchema =
   require("../../helpers/validation").personalityRecschema;
 
 exports.postPersonalityQuestion = async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const { questionName, optionNames } = req.body;
 
@@ -29,27 +32,35 @@ exports.postPersonalityQuestion = async (req, res) => {
     if (error) {
       errorForJoi(error, res);
     }
-    const personalityQuestion = await PersonalityQuestions.create({
-      questionName,
-    });
+
+    const personalityQuestion = await PersonalityQuestions.create(
+      {
+        questionName,
+      },
+      { transaction: t }
+    );
 
     for (let i = 0; i < optionNames.length; i++) {
-      await PersonalityOptions.create({
-        optionName: optionNames[i],
-        personalityQuestionId: personalityQuestion.id,
-      });
+      await PersonalityOptions.create(
+        {
+          optionName: optionNames[i],
+          personalityQuestionId: personalityQuestion.id,
+        },
+        { transaction: t }
+      );
     }
-    res.status(200).json({ message: "succesfull" });
+
+    await t.commit();
+    res.status(200).json({ message: "successful" });
   } catch (err) {
+    await t.rollback();
     console.log(err);
     error500(err, res);
   }
 };
 
 exports.postQnsWithLogicJumps = async (req, res) => {
-  //let say he is typing question and let he choose the logic jump question from the list of the questions
-
-  //quesion name , array of options and logic jump option id
+  const t = await sequelize.transaction();
 
   try {
     const { questionName, options } = req.body;
@@ -60,29 +71,43 @@ exports.postQnsWithLogicJumps = async (req, res) => {
       errorForJoi(error, res);
     }
 
-    const personalityQuestion = await PersonalityQuestions.create({
-      questionName,
-      isLogicJump: true,
-    });
+    const personalityQuestion = await PersonalityQuestions.create(
+      {
+        questionName,
+        isLogicJump: true,
+      },
+      { transaction: t }
+    );
 
     for (let i = 0; i < options.length; i++) {
-      const personalityOption = await PersonalityOptions.create({
-        optionName: options[i].option,
-        personalityQuestionId: personalityQuestion.id,
-      });
-      await personalityLogicJump.create({
-        option_id: personalityOption.id,
-        to_question_id: options[i].logicJumpId || null,
-      });
+      const personalityOption = await PersonalityOptions.create(
+        {
+          optionName: options[i].option,
+          personalityQuestionId: personalityQuestion.id,
+        },
+        { transaction: t }
+      );
+
+      await personalityLogicJump.create(
+        {
+          option_id: personalityOption.id,
+          to_question_id: options[i].logicJumpId || null,
+        },
+        { transaction: t }
+      );
     }
 
-    res.status(200).json({ message: "succesfull" });
+    await t.commit();
+    res.status(200).json({ message: "successful" });
   } catch (err) {
+    await t.rollback();
     error500(err, res);
   }
 };
 
 exports.postPersonalityOutcomes = async (req, res, next) => {
+  const t = await sequelize.transaction();
+
   try {
     const { outcomeName } = req.body;
     const { error } = postPersonalityOutcomes.validate(req.body);
@@ -90,41 +115,54 @@ exports.postPersonalityOutcomes = async (req, res, next) => {
     if (error) {
       errorForJoi(err, res);
     }
-    await personalityOutcomes.create({
-      outcomeName,
-    });
-    res.status(200).json({ messsage: "successfull" });
+
+    await personalityOutcomes.create(
+      {
+        outcomeName,
+      },
+      { transaction: t }
+    );
+
+    await t.commit();
+    res.status(200).json({ message: "successful" });
   } catch (err) {
+    await t.rollback();
     error500(err, res);
   }
 };
 
 exports.postPersonalityRecords = async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const { questionAnsIds } = req.body;
     const { error } = personalityRecSchema.validate(req.body);
+
     if (error) {
       errorForJoi(error, res);
     }
 
-    // console.log(questionAnsIds)
     for (let i = 0; i < questionAnsIds.length; i++) {
-      console.log(questionAnsIds[i].personalityOptionId);
-      await PersonalityQnRecord.create({
-        personalityQuestionId: questionAnsIds[i].personalityQuestionId,
-        personalityOptionId: questionAnsIds[i].personalityOptionId,
-        userId: req.user,
-      });
+      await PersonalityQnRecord.create(
+        {
+          personalityQuestionId: questionAnsIds[i].personalityQuestionId,
+          personalityOptionId: questionAnsIds[i].personalityOptionId,
+          userId: req.user,
+        },
+        { transaction: t }
+      );
     }
-    
-    res.status(200).json({ message: "successfull" });
+
+    await t.commit();
+    res.status(200).json({ message: "successful" });
   } catch (err) {
+    await t.rollback();
     error500(err, res);
   }
 };
 
 // exports.getPersonalityQuestions = async(req,res)=>{
-  
+
 // }
 
 //personlity outcome results need to be captured

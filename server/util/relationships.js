@@ -47,6 +47,10 @@ const feedbackQuestions = require("../models/user/feedbackquestionsModel");
 const feedbackOptions = require("../models/user/feedbackOptionsModel");
 const userFeedback = require("../models/user/userFeedback");
 
+
+//customer
+const Customer = require("../models/customer/customerModel");
+
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
   User.hasMany(tinyHabitsCompletion);
@@ -219,6 +223,13 @@ const relationships = () => {
 
   programs.hasMany(userFeedback);
   userFeedback.belongsTo(programs);
+
+
+
+  //customer realtionships................................................
+
+  //relating customer with user
+
 
 
 };
