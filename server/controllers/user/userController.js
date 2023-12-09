@@ -22,7 +22,11 @@ const error500 = require("../../helpers/error").error500;
 //action schemas
 const ActionCompletion = require("../../models/user/actionCompletion");
 
+//email
+const emailSender = require("../../helpers/email");
+
 const { Sequelize, DataTypes } = require("sequelize");
+const otpModel = require("../../models/user/otpModel");
 
 exports.userSignup = async (req, res) => {
   const t = await sequelize.transaction(); // Start a transaction
@@ -72,6 +76,34 @@ exports.userSignup = async (req, res) => {
     await t.rollback(); // Rollback transaction on error
     error500(err, res);
   }
+};
+
+exports.sendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const findEmail = await User.findOne({ where: { email } });
+    if (!findEmail) {
+      res.status(400).json({ message: "user not found" });
+    }
+    const otp = Math.floor(1000 + Math.random() * 9000);
+    const otpCreation = await otpModel.create({
+      userId: findEmail.id,
+      otpCode: otp,
+    });
+    await emailSender(email);
+    deleteOtpRow(otpCreation.otpId);
+    res.status(200).json({ message: "succesfull" });
+  } catch (err) {
+    error500(err, res);
+  }
+};
+
+const deleteOtpRow = (otpId) => {
+  setTimeout(async () => {
+    try {
+      await otpModel.destroy({ where: { otpId } });
+    } catch (error) {}
+  }, 1000 * 60 * 5);
 };
 
 exports.login = async (req, res) => {

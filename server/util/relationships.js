@@ -50,6 +50,7 @@ const userFeedback = require("../models/user/userFeedback");
 
 //customer
 const Customer = require("../models/customer/customerModel");
+const otpModel = require("../models/user/otpModel");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -224,6 +225,11 @@ const relationships = () => {
   programs.hasMany(userFeedback);
   userFeedback.belongsTo(programs);
 
+  //otp and user
+  User.hasMany(otpModel);
+  otpModel.belongsTo(User);
+
+  
 
 
   //customer realtionships................................................
