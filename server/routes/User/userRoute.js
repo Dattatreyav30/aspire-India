@@ -15,6 +15,11 @@ router.post("/login", upload.none(), userController.login);
 
 router.get("/get-tower", userAuth.authorization, userController.getUserTower);
 
-router.post("/send-otp", userAuth.authorization, userController.sendOtp);
+router.post("/send-otp", userController.sendOtp);
+router.post(
+  "/verify-otp",
+  userAuth.authorization,
+  userController.otpVerification
+);
 
 module.exports = router;

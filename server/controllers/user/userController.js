@@ -92,7 +92,10 @@ exports.sendOtp = async (req, res) => {
     });
     await emailSender(email);
     deleteOtpRow(otpCreation.otpId);
-    res.status(200).json({ message: "succesfull" });
+    res.status(200).json({
+      token: generateAccessToken(findEmail.id),
+      message: "succesfull",
+    });
   } catch (err) {
     error500(err, res);
   }
@@ -103,7 +106,25 @@ const deleteOtpRow = (otpId) => {
     try {
       await otpModel.destroy({ where: { otpId } });
     } catch (error) {}
-  }, 1000 * 60 * 5);
+  }, 1000 * 60 * 2);
+};
+
+exports.otpVerification = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const latestUserOtp = await otpModel.findOne({
+      where: { userId: req.user },
+      order: [["createdAt", "DESC"]],
+    });
+    console.log(latestUserOtp.otpCode);
+    console.log(otp);
+    if (Number(otp) !== Number(latestUserOtp.otpCode)) {
+      return res.status(404).json({ message: "wrfong otp" });
+    }
+    res.status(200).json({ message: "otp verification is successfull" });
+  } catch (err) {
+    error500(err, res);
+  }
 };
 
 exports.login = async (req, res) => {
