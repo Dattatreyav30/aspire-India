@@ -15,7 +15,6 @@ const followersModel = sequelize.define("followersModel", {
     type : Sequelize.STRING,
     allowNull : false
   }
-
 });
 
 module.exports = followersModel;
