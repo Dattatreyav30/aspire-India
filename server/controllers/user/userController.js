@@ -116,8 +116,6 @@ exports.otpVerification = async (req, res) => {
       where: { userId: req.user },
       order: [["createdAt", "DESC"]],
     });
-    console.log(latestUserOtp.otpCode);
-    console.log(otp);
     if (Number(otp) !== Number(latestUserOtp.otpCode)) {
       return res.status(404).json({ message: "wrfong otp" });
     }

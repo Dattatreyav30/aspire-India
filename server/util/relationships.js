@@ -47,10 +47,11 @@ const feedbackQuestions = require("../models/user/feedbackquestionsModel");
 const feedbackOptions = require("../models/user/feedbackOptionsModel");
 const userFeedback = require("../models/user/userFeedback");
 
-
 //customer
 const Customer = require("../models/customer/customerModel");
 const otpModel = require("../models/user/otpModel");
+const followersModel = require("../models/user/followersModel");
+const followerReqModel = require("../models/user/followerReqModel");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -229,15 +230,29 @@ const relationships = () => {
   User.hasMany(otpModel);
   otpModel.belongsTo(User);
 
-  
+  //followers
+  User.hasMany(followersModel);
+  followersModel.belongsTo(User);
+
+  followersModel.belongsTo(User, {
+    as: "follower",
+    foreignKey: "follower_id",
+  });
+
+  followerReqModel.belongsTo(User,{
+    as : 'followeRequester',
+    foreignKey : 'requesterId'
+  })
+
+  followerReqModel.belongsTo(User,{
+    as : 'followeRequesteee',
+    foreignKey : 'requesteeId'
+  })
 
 
   //customer realtionships................................................
 
   //relating customer with user
-
-
-
 };
 
 module.exports = relationships;
