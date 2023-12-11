@@ -13,6 +13,12 @@ router.post("/signup", upload.none(), userController.userSignup);
 
 router.post("/login", upload.none(), userController.login);
 
+router.post(
+  "/set-password",
+  userAuth.authorization,
+  userController.setPassword
+);
+
 router.get("/get-tower", userAuth.authorization, userController.getUserTower);
 
 router.post("/send-otp", userController.sendOtp);

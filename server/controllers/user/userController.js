@@ -125,6 +125,21 @@ exports.otpVerification = async (req, res) => {
   }
 };
 
+exports.setPassword = async (req, res) => {
+  try {
+    const userId = req.user;
+    const { password, confirmPassword } = req.body;
+    if (password === confirmPassword) {
+      const hashedPassword = await bcrypt.hash(password, 5);
+      await User.update({ password: hashedPassword }, { where: {id :  userId } });
+      res.status(200).json({ message: "succesfull" });
+    } else {
+      res.status(400).json({ message: "password wont match" });
+    }
+  } catch (err) {
+    error500(err, res);
+  }
+};
 exports.login = async (req, res) => {
   const t = await sequelize.transaction(); // Start a transaction
 

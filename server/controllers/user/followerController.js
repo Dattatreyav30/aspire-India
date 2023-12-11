@@ -113,7 +113,6 @@ exports.getUserFollowers = async (req, res) => {
 
     res.status(200).json(followers); // Send the followers as JSON response
   } catch (err) {
-    console.error('Error fetching followers:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
