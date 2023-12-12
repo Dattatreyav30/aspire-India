@@ -68,4 +68,20 @@ router.get(
   ProgramController.streaksCalculation
 );
 
+router.post("/post-shape", ProgramController.storeShapes);
+
+router.get("/get-shapes", ProgramController.getShapes);
+
+router.post(
+  "/store-user-towerData",
+  userAuth.authorization,
+  ProgramController.addShapetoTower
+);
+
+router.get(
+  "/get-user-tower",
+  userAuth.authorization,
+  ProgramController.getAllUserTowerData
+);
+
 module.exports = router;
