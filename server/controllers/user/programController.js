@@ -14,6 +14,8 @@ const ActionCompletion = require("../../models/user/actionCompletion");
 const User = require("../../models/user/userModel");
 const UserPrograms = require("../../models/user/userProgramsModel");
 const feedbackQuestions = require("../../models/user/feedbackquestionsModel");
+const towerShapes = require("../../models/user/towerShape");
+const userTower = require("../../models/user/userTower");
 
 //error handlers
 const errorForJoi = require("../../helpers/error").errorHandlerJoi;
@@ -246,7 +248,6 @@ exports.postProgramWithActions = async (req, res) => {
           points: action.points,
           duration: action.duration,
           programId: createProgram.id,
-          geometricShape: action.geometricShape,
           actionType: action.actionType,
         },
         { transaction: t }
@@ -415,6 +416,8 @@ exports.postAction = async (req, res) => {
       transaction: t,
     });
 
+    //if action is already completed today , user cant complete another action
+
     if (existingAction) {
       const today = new Date();
       const createdAtDate = existingAction.createdAt;
@@ -438,12 +441,13 @@ exports.postAction = async (req, res) => {
           audioUrlS3: audioS3Response.Location,
           text,
           locationName,
-          geometricShape: action.geometricShape,
         },
         { transaction: t }
       );
     };
     await createActionCompletion();
+
+    //increasing the frequency in useractkon table on completion each of habit
 
     await UserActions.update(
       { frequency: sequelize.literal("frequency + 1") },
@@ -457,6 +461,9 @@ exports.postAction = async (req, res) => {
 
     let askQuestionBoolean = false;
     let foundQn;
+
+    //checking if feedback question day feild matches freqnecy and if matches will send them  feedback questions
+
     const askFeedBackQn = async (frequency) => {
       foundQn = await feedbackQuestions.findOne({
         where: { day: frequency },
@@ -481,12 +488,16 @@ exports.postAction = async (req, res) => {
       }
     }
 
+    //if all the actions is completed , marking the program is complete
+
     if (actionCount === userActions.length) {
       await UserPrograms.update(
         { isComplete: true },
         { where: { userId: req.user, programId }, transaction: t }
       );
     }
+
+    //if frequency and duration are equal, marking the action is complete
 
     if (Number(userAction.frequency) === Number(userAction.duration)) {
       await UserActions.update(
@@ -505,6 +516,9 @@ exports.postAction = async (req, res) => {
       where: { id: req.user },
       transaction: t,
     });
+
+    //updating total number of points
+
     await user.update(
       {
         totalPoints: Number(user.totalPoints) + Number(action.points),
@@ -521,7 +535,6 @@ exports.postAction = async (req, res) => {
         questionId: foundQn,
         actionId: actionCompletion.actionId,
         programId: actionCompletion.programId,
-        geometricShape: actionCompletion.geometricShape,
       },
     });
   } catch (err) {
@@ -804,6 +817,26 @@ exports.streaksCalculation = async (req, res) => {
     }
     const updatedStreak = await Streaks.findOne({ where: { userId } });
     res.status(200).json({ updatedStreak });
+  } catch (err) {
+    error500(err, res);
+  }
+};
+
+exports.addShapetoTower = async (req, res) => {
+  try {
+    const { towershapeId, actionId } = req.body;
+    const userId = req.user;
+    const towerShape = await towerShapes.findOne({
+      where: { id: towershapeId },
+    });
+
+    const updateUserTower = await userTower.create({
+      towershapeId,
+      actionId,
+      userId: userId,
+      shapeType: towerShape.shapeType,
+      currTowerMeter: currTowerMeter + 1,
+    });
   } catch (err) {
     error500(err, res);
   }

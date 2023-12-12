@@ -19,10 +19,6 @@ const actionCompletion = sequelize.define("ActionCompletion", {
   locationName: {
     type: Sequelize.STRING,
   },
-  geometricShape : {
-    type : Sequelize.INTEGER,
-    allowNull : false
-  }
 });
 
 module.exports = actionCompletion;

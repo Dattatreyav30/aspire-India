@@ -120,6 +120,7 @@ exports.otpVerification = async (req, res) => {
     if (Number(otp) !== Number(latestUserOtp.otpCode)) {
       return res.status(404).json({ message: "wrfong otp" });
     }
+    await User.update({ isEmailVerified: true }, { where: { id: req.user } });
     res.status(200).json({ message: "otp verification is successfull" });
   } catch (err) {
     error500(err, res);
