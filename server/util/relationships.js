@@ -52,6 +52,7 @@ const Customer = require("../models/customer/customerModel");
 const otpModel = require("../models/user/otpModel");
 const followersModel = require("../models/user/followersModel");
 const followerReqModel = require("../models/user/followerReqModel");
+const Streaks = require("../models/user/streaksModel");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -239,16 +240,19 @@ const relationships = () => {
     foreignKey: "follower_id",
   });
 
-  followerReqModel.belongsTo(User,{
-    as : 'followeRequester',
-    foreignKey : 'requesterId'
-  })
+  followerReqModel.belongsTo(User, {
+    as: "followeRequester",
+    foreignKey: "requesterId",
+  });
 
-  followerReqModel.belongsTo(User,{
-    as : 'followeRequesteee',
-    foreignKey : 'requesteeId'
-  })
+  followerReqModel.belongsTo(User, {
+    as: "followeRequesteee",
+    foreignKey: "requesteeId",
+  });
 
+  //straks and user
+  User.hasMany(Streaks);
+  Streaks.belongsTo(User);
 
   //customer realtionships................................................
 

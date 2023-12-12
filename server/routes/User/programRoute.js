@@ -57,9 +57,15 @@ router.get(
 router.get("/get-home", userAuth.authorization, ProgramController.getHome);
 
 router.get(
-  "/get-user-actions",
+  "/get-user-actions/:programId",
   userAuth.authorization,
   ProgramController.getUserActions
+);
+
+router.get(
+  "/get-user-streaks",
+  userAuth.authorization,
+  ProgramController.streaksCalculation
 );
 
 module.exports = router;

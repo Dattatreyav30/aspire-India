@@ -20,6 +20,7 @@ const errorForJoi = require("../../helpers/error").errorHandlerJoi;
 const error500 = require("../../helpers/error").error500;
 
 const sequelize = require("../../util/database");
+const Sequelize = require("sequelize");
 //functions
 const {
   getUser,
@@ -33,6 +34,7 @@ const {
 const UserActions = require("../../models/user/userActionsModel");
 
 const { Op, or } = require("sequelize");
+const Streaks = require("../../models/user/streaksModel");
 
 //joiSchemas
 const departmentSchema = require("../../helpers/validation").departmentSchema;
@@ -577,29 +579,97 @@ exports.getUserPrograms = async (req, res) => {
     error500(err, res);
   }
 };
+// exports.getUserActions = async (req, res) => {
+//   try {
+//     const userId = req.user;
+//     const allActionDetails = [];
+//     const userActions = await UserActions.findAll({
+//       where: { userId: userId, isComplete: false },
+//     });
+//     // Process each UserAction
+//     let validActions;
+//     await Promise.all(
+//       userActions.map(async (userAction) => {
+//         // console.log(userAction)
+//         const { actionId, frequency, duration, totalPoints } = userAction;
+
+//         // Fetch the Action details for the given actionId
+//         const actionDetails = await Actions.findByPk(actionId);
+
+//         if (actionDetails) {
+//           // Calculate habitscore
+//           const habitScore = (frequency / duration) * 100;
+//           // console.log(habitScore, frequency, duration);
+//           // Calculate totalpoints earned
+//           const totalpoints= duration * totalPoints;
+
+//           // Calculate points earned
+//           const pointsEarned = frequency * duration;
+//           const currentDate = new Date();
+//           const startOfMonth = new Date(
+//             currentDate.getFullYear(),
+//             currentDate.getMonth(),
+//             1
+//           );
+//           const endOfMonth = new Date(
+//             currentDate.getFullYear(),
+//             currentDate.getMonth() + 1,
+//             0
+//           );
+
+//           const actionCompletions = await ActionCompletion.findAll({
+//             where: {
+//               userId,
+//               actionId,
+//               createdAt: {
+//                 [Op.gte]: startOfMonth,
+//                 [Op.lte]: endOfMonth,
+//               },
+//             },
+//             attributes: ["actionId", "createdAt", "updatedAt"],
+//           });
+
+//           validActions = {
+//             actionDetails,
+//             actionId,
+//             habitScore,
+//             totalpoints,
+//             pointsEarned,
+//             actionCompletions,
+//           };
+//           allActionDetails.push(validActions);
+//         }
+//       })
+//     );
+
+//     res.status(200).json({ userActions: allActionDetails });
+//   } catch (err) {
+//     error500(err, res);
+//   }
+// };
+
 exports.getUserActions = async (req, res) => {
   try {
     const userId = req.user;
-    const allActionDetails = [];
+    console.log(userId);
+    const programId = req.params.programId;
     const userActions = await UserActions.findAll({
-      where: { userId: userId, isComplete: false },
+      where: { programId: programId, userId: userId, isComplete: false },
     });
-    // Process each UserAction
-    let validActions;
+    const allActionDetails = [];
+
     await Promise.all(
       userActions.map(async (userAction) => {
         // console.log(userAction)
         const { actionId, frequency, duration, totalPoints } = userAction;
-
         // Fetch the Action details for the given actionId
         const actionDetails = await Actions.findByPk(actionId);
-
         if (actionDetails) {
           // Calculate habitscore
           const habitScore = (frequency / duration) * 100;
-          console.log(habitScore, frequency, duration);
+          // console.log(habitScore, frequency, duration);
           // Calculate totalpoints earned
-          const totalPointsEarned = duration * totalPoints;
+          const totalpoints = duration * totalPoints;
 
           // Calculate points earned
           const pointsEarned = frequency * duration;
@@ -614,15 +684,16 @@ exports.getUserActions = async (req, res) => {
             currentDate.getMonth() + 1,
             0
           );
-
+          console.log(userId, actionId, programId);
           const actionCompletions = await ActionCompletion.findAll({
             where: {
               userId,
               actionId,
-              createdAt: {
-                [Op.gte]: startOfMonth,
-                [Op.lte]: endOfMonth,
-              },
+              programId,
+              // createdAt: {
+              //   [Op.gte]: startOfMonth,
+              //   [Op.lte]: endOfMonth,
+              // },
             },
             attributes: ["actionId", "createdAt", "updatedAt"],
           });
@@ -631,7 +702,7 @@ exports.getUserActions = async (req, res) => {
             actionDetails,
             actionId,
             habitScore,
-            totalPointsEarned,
+            totalpoints,
             pointsEarned,
             actionCompletions,
           };
@@ -642,6 +713,100 @@ exports.getUserActions = async (req, res) => {
 
     res.status(200).json({ userActions: allActionDetails });
   } catch (err) {
+    console.log(err);
+    error500(err, res);
+  }
+};
+
+exports.streaksCalculation = async (req, res) => {
+  try {
+    const userId = req.user;
+    console.log(userId);
+    const streaks = {
+      dailyStreak: "",
+      weeklyStreak: "",
+      monthlyStreak: "",
+    };
+    async function calculateDailyStreak(userId) {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+
+      const actionCountToday = await ActionCompletion.count({
+        where: {
+          userId: userId,
+          createdAt: {
+            [Sequelize.Op.between]: [yesterday, today], // Actions from yesterday and today
+          },
+        },
+      });
+      streaks.dailyStreak = actionCountToday || 0;
+    }
+    async function calculateWeeklyStreak(userId) {
+      const today = new Date();
+      const lastWeek = new Date(today);
+      lastWeek.setDate(today.getDate() - 7);
+
+      const actionCountLastWeek = await ActionCompletion.count({
+        where: {
+          userId: userId,
+          createdAt: {
+            [Sequelize.Op.between]: [lastWeek, today], // Actions from last week until today
+          },
+        },
+      });
+
+      streaks.weeklyStreak = actionCountLastWeek || 0;
+    }
+    async function calculateMonthlyStreak(userId) {
+      const today = new Date();
+      const lastMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() - 1,
+        today.getDate()
+      );
+
+      const actionCountLastMonth = await ActionCompletion.count({
+        where: {
+          userId: userId,
+          createdAt: {
+            [Sequelize.Op.between]: [lastMonth, today], // Actions from last month until today
+          },
+        },
+      });
+
+      streaks.monthlyStreak = actionCountLastMonth || 0;
+    }
+    const findUserStreak = await Streaks.findOne({ where: { userId } });
+    await calculateDailyStreak(userId);
+    await calculateWeeklyStreak(userId);
+    await calculateMonthlyStreak(userId);
+    if (
+      Number(findUserStreak.monthlyStreak) - Number(streaks.monthlyStreak) >=
+      3
+    ) {
+      console.log(userId);
+      await Streaks.update(
+        {
+          weeklyStreak: 0,
+          monthlyStreak: 0,
+        },
+        { where: { userId: userId } }
+      );
+    } else {
+      await Streaks.update(
+        {
+          dailyStreak: streaks.dailyStreak,
+          weeklyStreak: streaks.weeklyStreak,
+          monthlyStreak: streaks.monthlyStreak,
+        },
+        { where: { userId } }
+      );
+    }
+    const updatedStreak = await Streaks.findOne({ where: { userId } });
+    res.status(200).json({ updatedStreak });
+  } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };

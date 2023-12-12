@@ -27,16 +27,17 @@ const emailSender = require("../../helpers/email");
 
 const { Sequelize, DataTypes } = require("sequelize");
 const otpModel = require("../../models/user/otpModel");
+const Streaks = require("../../models/user/streaksModel");
 
 exports.userSignup = async (req, res) => {
   const t = await sequelize.transaction(); // Start a transaction
 
   try {
-    const { error } = userSchema.validate(req.body);
+    // const { error } = userSchema.validate(req.body);
 
-    if (error) {
-      return errorForJoi(error, res);
-    }
+    // if (error) {
+    //   return errorForJoi(error, res);
+    // }
 
     const { email, phoneNumber, name, DOB, DOJ, gender, password } = req.body;
 
@@ -131,7 +132,11 @@ exports.setPassword = async (req, res) => {
     const { password, confirmPassword } = req.body;
     if (password === confirmPassword) {
       const hashedPassword = await bcrypt.hash(password, 5);
-      await User.update({ password: hashedPassword }, { where: {id :  userId } });
+      await User.update(
+        { password: hashedPassword },
+        { where: { id: userId } }
+      );
+      await Streaks.create({ userId });
       res.status(200).json({ message: "succesfull" });
     } else {
       res.status(400).json({ message: "password wont match" });
