@@ -11,10 +11,6 @@ const userTower = sequelize.define("userTower", {
     type: Sequelize.STRING,
     allowNull: false,
   },
-  currTowerMeter: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
 });
 
 module.exports = userTower;

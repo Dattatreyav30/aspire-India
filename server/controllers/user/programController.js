@@ -830,13 +830,46 @@ exports.addShapetoTower = async (req, res) => {
       where: { id: towershapeId },
     });
 
-    const updateUserTower = await userTower.create({
+    await userTower.create({
       towershapeId,
       actionId,
       userId: userId,
       shapeType: towerShape.shapeType,
-      currTowerMeter: currTowerMeter + 1,
     });
+    res.status(200).json({ message: "user tower data is updating" });
+  } catch (err) {
+    error500(err, res);
+  }
+};
+exports.storeShapes = async (req, res) => {
+  try {
+    const { shapeUrl, shapeType } = req.body;
+    await towerShapes.create({
+      shapeUrl,
+      shapeType,
+    });
+    res.status(200).json({ message: "shapes created succesfully" });
+  } catch (err) {
+    error500(err, res);
+  }
+};
+
+exports.getShapes = async (req, res) => {
+  try {
+    const allShapes = await towerShapes.findAll();
+    res.status(200).json({ allShapes });
+  } catch (err) {
+    error500(err, res);
+  }
+};
+
+
+//doubts
+//
+exports.getAllUserTowerData = async (req, res) => {
+  try {
+    const userId = req.user;
+    
   } catch (err) {
     error500(err, res);
   }
