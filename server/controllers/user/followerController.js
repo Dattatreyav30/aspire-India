@@ -113,6 +113,26 @@ exports.getUserFollowers = async (req, res) => {
 
     res.status(200).json(followers); // Send the followers as JSON response
   } catch (err) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.getUserFollowing = async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+    const userId = req.user;
+    const pageSize = 10; // Adjust as needed - number of followers per page
+    const skip = (page - 1) * pageSize;
+
+    // Fetch followers for the given userId with pagination
+    const following = await followersModel.findAll({
+      where: { follower_id: userId },
+      offset: skip,
+      limit: pageSize,
+    });
+
+    res.status(200).json(following); // Send the followers as JSON response
+  } catch (err) {
+    error500(err, res);
   }
 };

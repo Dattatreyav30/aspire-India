@@ -736,7 +736,7 @@ exports.streaksCalculation = async (req, res) => {
         where: {
           userId: userId,
           createdAt: {
-            [Sequelize.Op.between]: [yesterday, today], // Actions from yesterday and today
+            [Sequelize.Op.between]: [yesterday, today], // Actions(habits) from yesterday and today
           },
         },
       });
@@ -785,7 +785,6 @@ exports.streaksCalculation = async (req, res) => {
       Number(findUserStreak.monthlyStreak) - Number(streaks.monthlyStreak) >=
       3
     ) {
-      console.log(userId);
       await Streaks.update(
         {
           weeklyStreak: 0,
@@ -806,7 +805,6 @@ exports.streaksCalculation = async (req, res) => {
     const updatedStreak = await Streaks.findOne({ where: { userId } });
     res.status(200).json({ updatedStreak });
   } catch (err) {
-    console.log(err);
     error500(err, res);
   }
 };

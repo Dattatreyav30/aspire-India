@@ -24,4 +24,10 @@ router.get(
   followerController.getUserFollowers
 );
 
+router.get(
+  "/get-following",
+  userAuth.authorization,
+  followerController.getUserFollowing
+);
+
 module.exports = router;

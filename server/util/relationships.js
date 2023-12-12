@@ -53,6 +53,8 @@ const otpModel = require("../models/user/otpModel");
 const followersModel = require("../models/user/followersModel");
 const followerReqModel = require("../models/user/followerReqModel");
 const Streaks = require("../models/user/streaksModel");
+const userTower = require("../models/user/userTower");
+const towerShapes = require("../models/user/towerShape");
 
 const relationships = () => {
   //user and tiny habits , many tiny habits can be completed by single user
@@ -253,6 +255,17 @@ const relationships = () => {
   //straks and user
   User.hasMany(Streaks);
   Streaks.belongsTo(User);
+
+  //tower and user
+
+  User.hasMany(userTower);
+  userTower.belongsTo(User);
+
+  Actions.hasMany(userTower);
+  userTower.belongsTo(Actions);
+
+  towerShapes.hasMany(userTower);
+  userTower.belongsTo(towerShapes);
 
   //customer realtionships................................................
 
