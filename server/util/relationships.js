@@ -267,6 +267,8 @@ const relationships = () => {
   towerShapes.hasMany(userTower);
   userTower.belongsTo(towerShapes);
 
+  programs.hasMany(userTower);
+  userTower.belongsTo(programs);
   //customer realtionships................................................
 
   //relating customer with user

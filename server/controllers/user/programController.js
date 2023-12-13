@@ -824,20 +824,31 @@ exports.streaksCalculation = async (req, res) => {
 
 exports.addShapetoTower = async (req, res) => {
   try {
-    const { towershapeId, actionId } = req.body;
+    const { towershapeId, actionId, programId } = req.body;
     const userId = req.user;
     const towerShape = await towerShapes.findOne({
       where: { id: towershapeId },
     });
 
+    const existingAction = await userTower.findOne({
+      where: { programId, actionId, userId },
+    });
+    
+    if (existingAction) {
+      return res.status(400).json({
+        message: "Same shape already exists on the same date in the database",
+      });
+    }
     await userTower.create({
       towershapeId,
       actionId,
       userId: userId,
       shapeType: towerShape.shapeType,
+      programId,
     });
-    res.status(200).json({ message: "user tower data is updating" });
+    res.status(200).json({ message: "user tower data is added succesfully" });
   } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };
@@ -863,13 +874,11 @@ exports.getShapes = async (req, res) => {
   }
 };
 
-
 //doubts
 //
 exports.getAllUserTowerData = async (req, res) => {
   try {
     const userId = req.user;
-    
   } catch (err) {
     error500(err, res);
   }

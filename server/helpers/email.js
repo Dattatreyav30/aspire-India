@@ -1,11 +1,12 @@
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 
-const emailSender = async (email) => {
+const emailSender = async (email, otp) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "dattar6256w57612@gmail.com",
-      pass: "wgndybeychezimqz",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
     },
   });
 
@@ -16,7 +17,7 @@ const emailSender = async (email) => {
       to: `${email}`, // list of receivers
       subject: "Hello ✔", // Subject line
       text: "Hello world?", // plain text body
-      html: "<b>Hello world?</b>", // html body
+      html: `<b>${otp}</b`, // html body
     });
     console.log("Message sent: %s", info.messageId);
   }

@@ -25,7 +25,6 @@ const ActionCompletion = require("../../models/user/actionCompletion");
 //email
 const emailSender = require("../../helpers/email");
 
-const { Sequelize, DataTypes } = require("sequelize");
 const otpModel = require("../../models/user/otpModel");
 const Streaks = require("../../models/user/streaksModel");
 
@@ -84,17 +83,17 @@ exports.sendOtp = async (req, res) => {
     const { email } = req.body;
     const findEmail = await User.findOne({ where: { email } });
     if (!findEmail) {
-      res.status(400).json({ message: "user not found" });
+      return res.status(400).json({ message: "user not found" });
     }
     const otp = Math.floor(1000 + Math.random() * 9000);
     const otpCreation = await otpModel.create({
       userId: findEmail.id,
       otpCode: otp,
     });
-    await emailSender(email);
+    await emailSender(email, otp);
     deleteOtpRow(otpCreation.otpId);
     res.status(200).json({
-      token: generateAccessToken(findEmail.id),
+      email: findEmail.email,
       message: "succesfull",
     });
   } catch (err) {
@@ -112,33 +111,44 @@ const deleteOtpRow = (otpId) => {
 
 exports.otpVerification = async (req, res) => {
   try {
-    const { otp } = req.body;
+    const { email, otp } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      res.status(404).json({ message: "Invalid request" });
+    }
+    // console.log(user)
     const latestUserOtp = await otpModel.findOne({
-      where: { userId: req.user },
+      where: { userId: user.id },
       order: [["createdAt", "DESC"]],
     });
     if (Number(otp) !== Number(latestUserOtp.otpCode)) {
       return res.status(404).json({ message: "wrfong otp" });
     }
-    await User.update({ isEmailVerified: true }, { where: { id: req.user } });
+    await User.update({ isEmailVerified: true }, { where: { email } });
     res.status(200).json({ message: "otp verification is successfull" });
   } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };
 
 exports.setPassword = async (req, res) => {
   try {
-    const userId = req.user;
-    const { password, confirmPassword } = req.body;
+    const {email, password, confirmPassword } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      res.status(404).json({ message: "Invalid request/user not found" });
+    }
     if (password === confirmPassword) {
       const hashedPassword = await bcrypt.hash(password, 5);
       await User.update(
         { password: hashedPassword },
-        { where: { id: userId } }
+        { where: { id: user.id } }
       );
-      await Streaks.create({ userId });
-      res.status(200).json({ message: "succesfull" });
+      await Streaks.create({ userId: user.id });
+      res
+        .status(200)
+        .json({ message: "succesfull", token: generateAccessToken(user.id) });
     } else {
       res.status(400).json({ message: "password wont match" });
     }
