@@ -28,6 +28,8 @@ const emailSender = require("../../helpers/email");
 const otpModel = require("../../models/user/otpModel");
 const Streaks = require("../../models/user/streaksModel");
 
+const { s3, s3ImageParams } = require("../../helpers/controllerFunctions");
+
 exports.userSignup = async (req, res) => {
   const t = await sequelize.transaction(); // Start a transaction
 
@@ -74,6 +76,36 @@ exports.userSignup = async (req, res) => {
   } catch (err) {
     console.error(err);
     await t.rollback(); // Rollback transaction on error
+    error500(err, res);
+  }
+};
+
+exports.setProfile = async (req, res) => {
+  try {
+    const { email, DOB, name } = req.body;
+    const imageFile = req.files["profile_picture"][0];
+    console.log(req.user);
+
+    const imageParams = s3ImageParams(imageFile, "uploads/user_profile/photos");
+    const imageS3Response = await s3.upload(imageParams).promise();
+
+    await User.update(
+      {
+        name,
+        DOB,
+        profile_picture: imageS3Response.Location,
+        email,
+      },
+      {
+        where: { id: req.user },
+        // Exclude phoneNumber from the update query
+        fields: ["name", "DOB", "profile_picture", "email"],
+      }
+    );
+
+    res.status(200).json({ message: "successful" });
+  } catch (err) {
+    console.log(err);
     error500(err, res);
   }
 };
@@ -134,7 +166,7 @@ exports.otpVerification = async (req, res) => {
 
 exports.setPassword = async (req, res) => {
   try {
-    const {email, password, confirmPassword } = req.body;
+    const { email, password, confirmPassword } = req.body;
     const user = await User.findOne({ where: { email } });
     if (!user) {
       res.status(404).json({ message: "Invalid request/user not found" });
@@ -146,9 +178,7 @@ exports.setPassword = async (req, res) => {
         { where: { id: user.id } }
       );
       await Streaks.create({ userId: user.id });
-      res
-        .status(200)
-        .json({ message: "succesfull", token: generateAccessToken(user.id) });
+      res.status(200).json({ message: "succesfull" });
     } else {
       res.status(400).json({ message: "password wont match" });
     }
