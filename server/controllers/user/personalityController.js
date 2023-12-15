@@ -161,9 +161,14 @@ exports.postPersonalityRecords = async (req, res) => {
   }
 };
 
-// exports.getPersonalityQuestions = async(req,res)=>{
+exports.getPersonalityQuestionsOptions = async (req, res) => {
+  try {
+    const personalityQuestionsWithOptions = await PersonalityQuestions.findAll({
+      include: PersonalityOptions,
+    });
 
-// }
-
-//personlity outcome results need to be captured
-//logic behind getting personality outcome
+    res.status(200).json({ personalityQuestionsWithOptions });
+  } catch (err) {
+    error500(err, res);
+  }
+};
