@@ -30,6 +30,7 @@ exports.postPersonalityQuestion = async (req, res) => {
     const { error } = personalityQnschema.validate(req.body);
 
     if (error) {
+      await t.rollback();
       errorForJoi(error, res);
     }
 
@@ -68,6 +69,7 @@ exports.postQnsWithLogicJumps = async (req, res) => {
     const { error } = postQnLogicJump.validate(req.body);
 
     if (error) {
+      await t.rollback();
       errorForJoi(error, res);
     }
 
@@ -113,6 +115,7 @@ exports.postPersonalityOutcomes = async (req, res, next) => {
     const { error } = postPersonalityOutcomes.validate(req.body);
 
     if (error) {
+      await t.rollback();
       errorForJoi(err, res);
     }
 
@@ -139,6 +142,7 @@ exports.postPersonalityRecords = async (req, res) => {
     const { error } = personalityRecSchema.validate(req.body);
 
     if (error) {
+      await t.rollback();
       errorForJoi(error, res);
     }
 
