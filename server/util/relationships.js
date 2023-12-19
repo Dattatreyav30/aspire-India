@@ -146,8 +146,12 @@ const relationships = () => {
   CommunityPosts.belongsTo(User);
 
   //for each like , linking it to the post id
-  CommunityPosts.hasMany(CommunityPostsLikes);
-  CommunityPostsLikes.belongsTo(CommunityPosts);
+  // CommunityPosts.hasMany(CommunityPostsLikes);
+  // CommunityPostsLikes.belongsTo(CommunityPosts);
+
+  //linking community likes with actionCompletion
+  ActionCompletion.hasMany(CommunityPostsLikes);
+  CommunityPostsLikes.belongsTo(ActionCompletion);
 
   //for each comment, linking it to the post id
   CommunityPosts.hasMany(CommunityPostsComnts);
