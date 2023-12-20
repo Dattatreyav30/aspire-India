@@ -525,8 +525,9 @@ exports.postAction = async (req, res) => {
     await UserPrograms.update(
       {
         programScore:
-          userProgram.totalActions / userProgram.totalCompletedActions,
-      } * 100
+          (userProgram.totalActions / userProgram.totalCompletedActions) * 100,
+      },
+      { where: { programId, userId: req.user } }
     );
     if (userProgram.totalCompletedActions === userProgram.totalActions) {
       await UserPrograms.update(
@@ -903,5 +904,22 @@ exports.getAllUserTowerData = async (req, res) => {
     const userId = req.user;
   } catch (err) {
     error500(err, res);
+  }
+};
+
+exports.calculateProgramStreak = async (req, res) => {
+  const userId = req.user;
+  const userprograms = await UserPrograms.findAll({ where: { userId } });
+  const programIds = userprograms.map((programs) => programs.programId);
+  const checkActions = await UserActions.findAll({
+    where: { programId: programIds, userId },
+  });
+  const actionIds = checkActions.map((action) => action.actionId);
+  const todaysDate = new Date().toString();
+  const actionCompletion = await ActionCompletion.findAll({
+    where: { actionId: actionIds, createdAt: todaysDate },
+  });
+  if (actionCompletion.length === actionIds.length) {
+    Streaks.update({ monthlyStreak: monthlyStreak + 1 });
   }
 };
