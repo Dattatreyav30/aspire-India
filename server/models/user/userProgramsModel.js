@@ -7,11 +7,22 @@ const userPrograms = sequelize.define("userprograms", {
     primaryKey: true,
     autoIncrement: true,
   },
-  isComplete : {
-    type : Sequelize.INTEGER,
-    defaultValue : false
-  }
+  isComplete: {
+    type: Sequelize.INTEGER,
+    defaultValue: false,
+  },
+  totalCompletedActions: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+  },
+  totalActions: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+  },
+  programScore: {
+    type: Sequelize.INTEGER,
+    defaultValue: 0,
+  },
 });
 
-
-module.exports = userPrograms
+module.exports = userPrograms;

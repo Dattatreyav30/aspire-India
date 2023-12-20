@@ -19,10 +19,14 @@ const userActions = sequelize.define("useractions", {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
-  totalPoints:{
-    type:Sequelize.INTEGER,
-    allowNull:false
-  }
+  pointsPerHabit: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  totalPoints : {
+    type : Sequelize.INTEGER,
+    defaultValue : 0
+  },
 });
 
 module.exports = userActions;

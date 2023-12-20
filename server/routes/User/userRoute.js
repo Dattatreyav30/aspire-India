@@ -28,4 +28,6 @@ router.get("/get-tower", userAuth.authorization, userController.getUserTower);
 router.post("/send-otp", userController.sendOtp);
 router.post("/verify-otp", userController.otpVerification);
 
+router.get("/get-user", userAuth.authorization, userController.getUserData);
+
 module.exports = router;

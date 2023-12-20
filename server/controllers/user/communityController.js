@@ -129,7 +129,26 @@ exports.undoLike = async (req, res) => {
   }
 };
 
-exports.gerCommunityPosts = async (req, res) => {
-  const actions = await actionCompletion.findAll();
-  res.status(200).json({ message: "succesfull", actions: actions });
+exports.getCommunityPosts = async (req, res) => {
+  try {
+    const actions = await actionCompletion.findAll();
+    const userIds = actions.map((action) => action.userId);
+
+    const users = await User.findAll(
+      { where: { id: userIds } },
+      { attributes: ["profile_picture", "name", "createdAt", "updatedAt"] }
+    );
+
+    const actionsWithUsers = actions.map((action) => {
+      const user = users.find((user) => user.id === action.userId);
+      return {
+        ...action.toJSON(),
+        user: user || null,
+      };
+    });
+
+    res.status(200).json({ message: "successful", actions: actionsWithUsers });
+  } catch (error) {
+    res.status(500).json({ message: "Error occurred", error: error.message });
+  }
 };

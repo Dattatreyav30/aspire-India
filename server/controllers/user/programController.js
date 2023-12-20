@@ -23,6 +23,7 @@ const error500 = require("../../helpers/error").error500;
 
 const sequelize = require("../../util/database");
 const Sequelize = require("sequelize");
+// pointsPerHabit
 //functions
 const {
   getUser,
@@ -177,7 +178,7 @@ exports.postProgramWithActions = async (req, res) => {
     const {
       programName,
       description,
-      totalPoints,
+      pointsPerHabit,
       actions,
       departments,
       skills,
@@ -189,7 +190,7 @@ exports.postProgramWithActions = async (req, res) => {
       {
         programName,
         description,
-        totalPoints,
+        pointsPerHabit,
       },
       { transaction: t }
     );
@@ -354,14 +355,17 @@ exports.postProgramAssigned = async (req, res) => {
         id: action.id,
         duration: action.duration,
         points: action.points,
+        totalPoints: action.duration * action.points,
+        pointsPerHabit: 0,
       };
     });
-
+    console.log(actionDetails);
     for (let i = 0; i < userIds.length; i++) {
       await UserPrograms.create(
         {
           userId: userIds[i],
           programId: programId,
+          totalActions: actions.length,
         },
         { transaction: t }
       );
@@ -382,6 +386,7 @@ exports.postProgramAssigned = async (req, res) => {
     await t.commit(); // Commit the transaction
     res.status(200).json({ message: "succesfull" });
   } catch (err) {
+    console.log(err);
     await t.rollback(); // Rollback transaction on error
     error500(err, res);
   }
@@ -411,11 +416,6 @@ exports.postAction = async (req, res) => {
       transaction: t,
     });
 
-    const action = await Actions.findOne({
-      where: { id: actionId },
-      transaction: t,
-    });
-
     //if action is already completed today , user cant complete another action
 
     if (existingAction) {
@@ -429,6 +429,10 @@ exports.postAction = async (req, res) => {
         throw new Error("Action already completed today");
       }
     }
+    const action = await Actions.findOne({
+      where: { id: actionId },
+      transaction: t,
+    });
 
     let actionCompletion;
     const createActionCompletion = async () => {
@@ -476,26 +480,25 @@ exports.postAction = async (req, res) => {
 
     await askFeedBackQn(userAction.frequency);
 
-    const userActions = await UserActions.findAll({
-      where: { programId: programId, isComplete: false, userId: req.user },
-      transaction: t,
-    });
+    // const userActions = await UserActions.findAll({
+    //   where: { programId: programId, isComplete: false, userId: req.user },
+    //   transaction: t,
+    // });
+    // let actionCount = 0;
+    // for (let i = 0; i < userActions.length; i++) {
+    //   if (userActions.isComplete === true) {
+    //     actionCount++;
+    //   }
+    // }
 
-    let actionCount = 0;
-    for (let i = 0; i < userActions.length; i++) {
-      if (userActions.isComplete === true) {
-        actionCount++;
-      }
-    }
+    // //if all the actions is completed , marking the program is complete
 
-    //if all the actions is completed , marking the program is complete
-
-    if (actionCount === userActions.length) {
-      await UserPrograms.update(
-        { isComplete: true },
-        { where: { userId: req.user, programId }, transaction: t }
-      );
-    }
+    // if (actionCount === userActions.length) {
+    //   await UserPrograms.update(
+    //     { isComplete: true },
+    //     { where: { userId: req.user, programId }, transaction: t }
+    //   );
+    // }
 
     //if frequency and duration are equal, marking the action is complete
 
@@ -510,6 +513,26 @@ exports.postAction = async (req, res) => {
           transaction: t,
         }
       );
+      const [updatedRowsCount, updatedRows] = await UserPrograms.increment(
+        "totalCompletedActions",
+        { by: 1, where: { programId: programId } }
+      );
+    }
+
+    const userProgram = await UserPrograms.findOne({
+      where: { programId: programId, userId: req.user },
+    });
+    await UserPrograms.update(
+      {
+        programScore:
+          userProgram.totalActions / userProgram.totalCompletedActions,
+      } * 100
+    );
+    if (userProgram.totalCompletedActions === userProgram.totalActions) {
+      await UserPrograms.update(
+        { isComplete: true },
+        { where: { userId: req.user, programId } }
+      );
     }
 
     const user = await User.findOne({
@@ -521,7 +544,7 @@ exports.postAction = async (req, res) => {
 
     await user.update(
       {
-        totalPoints: Number(user.totalPoints) + Number(action.points),
+        pointsPerHabit: Number(user.pointsPerHabit) + Number(action.points),
         tower: Number(user.tower) + Number(1),
       },
       { transaction: t }
@@ -538,8 +561,8 @@ exports.postAction = async (req, res) => {
       },
     });
   } catch (err) {
-    await t.rollback();
     console.log(err);
+    await t.rollback();
     error500(err, res);
   }
 };
@@ -604,7 +627,7 @@ exports.getUserPrograms = async (req, res) => {
 //     await Promise.all(
 //       userActions.map(async (userAction) => {
 //         // console.log(userAction)
-//         const { actionId, frequency, duration, totalPoints } = userAction;
+//         const { actionId, frequency, duration, pointsPerHabit } = userAction;
 
 //         // Fetch the Action details for the given actionId
 //         const actionDetails = await Actions.findByPk(actionId);
@@ -613,8 +636,8 @@ exports.getUserPrograms = async (req, res) => {
 //           // Calculate habitscore
 //           const habitScore = (frequency / duration) * 100;
 //           // console.log(habitScore, frequency, duration);
-//           // Calculate totalpoints earned
-//           const totalpoints= duration * totalPoints;
+//           // Calculate pointsPerHabit earned
+//           const pointsPerHabit= duration * pointsPerHabit;
 
 //           // Calculate points earned
 //           const pointsEarned = frequency * duration;
@@ -646,7 +669,7 @@ exports.getUserPrograms = async (req, res) => {
 //             actionDetails,
 //             actionId,
 //             habitScore,
-//             totalpoints,
+//             pointsPerHabit,
 //             pointsEarned,
 //             actionCompletions,
 //           };
@@ -664,7 +687,6 @@ exports.getUserPrograms = async (req, res) => {
 exports.getUserActions = async (req, res) => {
   try {
     const userId = req.user;
-    console.log(userId);
     const programId = req.params.programId;
     const userActions = await UserActions.findAll({
       where: { programId: programId, userId: userId, isComplete: false },
@@ -674,7 +696,7 @@ exports.getUserActions = async (req, res) => {
     await Promise.all(
       userActions.map(async (userAction) => {
         // console.log(userAction)
-        const { actionId, frequency, duration, totalPoints } = userAction;
+        const { actionId, frequency, duration, pointsPerHabit } = userAction;
         // Fetch the Action details for the given actionId
         const actionDetails = await Actions.findByPk(actionId);
         if (actionDetails) {
@@ -682,7 +704,7 @@ exports.getUserActions = async (req, res) => {
           const habitScore = (frequency / duration) * 100;
           // console.log(habitScore, frequency, duration);
           // Calculate totalpoints earned
-          const totalpoints = duration * totalPoints;
+          const totalpoints = duration * pointsPerHabit;
 
           // Calculate points earned
           const pointsEarned = frequency * duration;
@@ -749,7 +771,7 @@ exports.streaksCalculation = async (req, res) => {
         where: {
           userId: userId,
           createdAt: {
-            [Sequelize.Op.between]: [yesterday, today], // Actions(habits) from yesterday and today
+            [Sequelize.Op.between]: [yesterday, today],
           },
         },
       });
@@ -764,7 +786,7 @@ exports.streaksCalculation = async (req, res) => {
         where: {
           userId: userId,
           createdAt: {
-            [Sequelize.Op.between]: [lastWeek, today], // Actions from last week until today
+            [Sequelize.Op.between]: [lastWeek, today],
           },
         },
       });
@@ -833,7 +855,7 @@ exports.addShapetoTower = async (req, res) => {
     const existingAction = await userTower.findOne({
       where: { programId, actionId, userId },
     });
-    
+
     if (existingAction) {
       return res.status(400).json({
         message: "Same shape already exists on the same date in the database",

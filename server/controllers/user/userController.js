@@ -11,6 +11,7 @@ const loginSchema = require("../../helpers/validation").loginSchema;
 //libraries
 const bcrypt = require("bcrypt");
 
+const getUserController = require("../../helpers/controllerFunctions").getUser;
 //middlewares
 const generateAccessToken =
   require("../../middleware/userAuth").generateAccessToken;
@@ -246,4 +247,9 @@ exports.getUserTower = async (req, res) => {
   } catch (err) {
     error500(err, res);
   }
+};
+
+exports.getUserData = async (req, res) => {
+  const userData = await getUserController(req.user);
+  res.status(200).json({ message: "succesfull", userData: userData });
 };

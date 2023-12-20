@@ -150,14 +150,21 @@ const s3AudioParams = (audioFile, route) => {
 };
 
 const createUserActions = async (userId, actionDetails, programId, t) => {
+  // console.log("yesssssss");
+  // console.log(programId);
   for (let i = 0; i < actionDetails.length; i++) {
-    await UserActions.create({
-      userId: userId,
-      actionId: actionDetails[i].id,
-      programId: programId,
-      duration: actionDetails[i].duration,
-      totalPoints: actionDetails[i].points
-    }, { transaction: t }); // Pass transaction object to UserActions.create()
+    console.log(actionDetails[i])
+    await UserActions.create(
+      {
+        userId: userId,
+        actionId: actionDetails[i].id,
+        programId: programId,
+        duration: actionDetails[i].duration,
+        totalPoints: actionDetails[i].totalPoints,
+        pointsPerHabit: actionDetails[i].points,
+      },
+      { transaction: t }
+    ); // Pass transaction object to UserActions.create()
   }
 };
 
