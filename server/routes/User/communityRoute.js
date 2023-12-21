@@ -25,4 +25,6 @@ router.post(
 router.get("/get-posts", communityController.getCommunityPosts);
 router.post("/undo-like", userAuth.authorization, communityController.undoLike);
 
+router.get("/get-user-likes",communityController.getUserLikes)
+
 module.exports = router;

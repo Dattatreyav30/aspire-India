@@ -151,3 +151,27 @@ exports.getCommunityPosts = async (req, res) => {
     res.status(500).json({ message: "Error occurred", error: error.message });
   }
 };
+
+exports.getUserLikes = async (req, res) => {
+  try {
+    const { communityPostId } = req.body;
+
+    // Find user IDs who liked the specific community post
+    const likes = await CommunityPostsLikes.findAll({
+      attributes: ["userId"], // Fetch only the userId column
+      where: { ActionCompletionId: communityPostId },
+    });
+
+    const userIds = likes.map((like) => like.userId); // Extract user IDs from likes
+
+    // Fetch user details based on user IDs from the Users model/table
+    const userLikes = await User.findAll({
+      where: { id: userIds }, // Fetch users whose IDs match the liked IDs
+    });
+
+    res.status(200).json({ userLikes });
+  } catch (err) {
+    // Handle errors appropriately
+    error500(err, res);
+  }
+};
