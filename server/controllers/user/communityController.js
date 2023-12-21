@@ -12,6 +12,8 @@ const { error500, errorHandlerJoi } = require("../../helpers/error");
 const { postLikesSchema } = require("../../helpers/validation");
 const actionCompletion = require("../../models/user/actionCompletion");
 
+const sequelize = require("../../util/database");
+
 exports.postCommunityPosts = async (req, res) => {
   const t = await sequelize.transaction();
 
@@ -48,17 +50,17 @@ exports.postLikes = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    const { emoji_type, communityPostId } = req.body;
+    const { communityPostId } = req.body;
 
-    const { error } = await postLikesSchema.validate(req.body);
-    if (error) {
-      errorHandlerJoi(error, res);
-    }
+    // const { error } = await postLikesSchema.validate(req.body);
+    // if (error) {
+    //   errorHandlerJoi(error, res);
+    // }
 
     const existingLike = await CommunityPostsLikes.findOne({
       where: {
         userId: req.user,
-        communityPostId: communityPostId,
+        ActionCompletionId: communityPostId,
       },
       transaction: t,
     });
@@ -73,19 +75,18 @@ exports.postLikes = async (req, res) => {
     const like = await CommunityPostsLikes.create(
       {
         userId: req.user,
-        communityPostId,
-        emoji_type,
+        ActionCompletionId: communityPostId,
       },
       { transaction: t }
     );
 
-    const post = await CommunityPosts.findOne({
+    const post = await actionCompletion.findOne({
       where: { id: communityPostId },
       transaction: t,
     });
 
     await post.update(
-      { likeCount: Number(post.likeCount) + 1 },
+      { likesCount: Number(post.likesCount) + 1 },
       { transaction: t }
     );
 
@@ -124,7 +125,6 @@ exports.undoLike = async (req, res) => {
     }
   } catch (err) {
     await t.rollback();
-    console.log(err);
     error500(err, res);
   }
 };
@@ -146,7 +146,6 @@ exports.getCommunityPosts = async (req, res) => {
         user: user || null,
       };
     });
-
     res.status(200).json({ message: "successful", actions: actionsWithUsers });
   } catch (error) {
     res.status(500).json({ message: "Error occurred", error: error.message });

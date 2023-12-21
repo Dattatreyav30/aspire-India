@@ -84,4 +84,10 @@ router.get(
   ProgramController.getAllUserTowerData
 );
 
+router.get(
+  "/get-program-streaks",
+  userAuth.authorization,
+  ProgramController.calculateProgramStreak
+);
+
 module.exports = router;

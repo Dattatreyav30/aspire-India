@@ -525,7 +525,7 @@ exports.postAction = async (req, res) => {
     await UserPrograms.update(
       {
         programScore:
-          (userProgram.totalActions / userProgram.totalCompletedActions) * 100,
+          (userProgram.totalCompletedActions / userProgram.totalActions) * 100,
       },
       { where: { programId, userId: req.user } }
     );
@@ -908,18 +908,52 @@ exports.getAllUserTowerData = async (req, res) => {
 };
 
 exports.calculateProgramStreak = async (req, res) => {
-  const userId = req.user;
-  const userprograms = await UserPrograms.findAll({ where: { userId } });
-  const programIds = userprograms.map((programs) => programs.programId);
-  const checkActions = await UserActions.findAll({
-    where: { programId: programIds, userId },
-  });
-  const actionIds = checkActions.map((action) => action.actionId);
-  const todaysDate = new Date().toString();
-  const actionCompletion = await ActionCompletion.findAll({
-    where: { actionId: actionIds, createdAt: todaysDate },
-  });
-  if (actionCompletion.length === actionIds.length) {
-    Streaks.update({ monthlyStreak: monthlyStreak + 1 });
+  try {
+    const userId = req.user;
+    console.log(userId);
+    const userPrograms = await UserPrograms.findAll({ where: { userId } });
+    const programIds = userPrograms.map((program) => program.programId);
+    console.log(programIds);
+    const checkActions = await UserActions.findAll({
+      where: { programId: programIds, userId },
+    });
+    const actionIds = checkActions.map((action) => action.actionId);
+    console.log(actionIds);
+
+    const currentDate = new Date().toISOString(); // Get today's date in YYYY-MM-DD format
+
+    let actionCompletion = [];
+
+    for (let i = 0; i < actionIds.length; i++) {
+      const foundAction = await ActionCompletion.findOne({
+        where: {
+          userId: req.user,
+          actionId: actionIds[i],
+          createdAt: currentDate,
+        },
+      });
+      if (foundAction) {
+        actionCompletion.push(foundAction);
+      }
+    }
+
+    console.log(req.user, actionCompletion, actionIds.length);
+    if (actionCompletion.length === actionIds.length) {
+      // Fetch and update streak value from the database
+      const streakData = await Streaks.findOne({ where: { userId } });
+      const monthlyStreak = streakData.monthlyStreak || 0;
+
+      await Streaks.update(
+        { monthlyStreak: monthlyStreak + 1 },
+        { where: { userId } }
+      );
+    }
+    const latestSreak = await Streaks.findOne({ where: { userId } });
+
+    res
+      .status(200)
+      .json({ message: "Streak calculated successfully", latestSreak });
+  } catch (error) {
+    res.status(500).json({ message: "Error occurred", error: error.message });
   }
 };
